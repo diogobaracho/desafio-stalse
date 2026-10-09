@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-09-30T00:00:00Z",
+  "source": {
+    "file": "sample_tickets.csv",
+    "rows_read": 150
+  },
+  "total_records": 147,
+  "invalid_dates_dropped": 3,
+  "date_range": {
+    "start": "2026-09-01",
+    "end": "2026-09-30"
+  },
+  "records_by_day": {
+    "2026-09-01": 6,
+    "2026-09-02": 3,
+    "2026-09-03": 7,
+    "2026-09-04": 5,
+    "2026-09-05": 6,
+    "2026-09-06": 6,
+    "2026-09-07": 9,
+    "2026-09-08": 10,
+    "2026-09-09": 5,
+    "2026-09-10": 2,
+    "2026-09-11": 5,
+    "2026-09-12": 7,
+    "2026-09-13": 3,
+    "2026-09-14": 4,
+    "2026-09-15": 5,
+    "2026-09-16": 2,
+    "2026-09-17": 4,
+    "2026-09-18": 5,
+    "2026-09-19": 2,
+    "2026-09-20": 5,
+    "2026-09-21": 5,
+    "2026-09-22": 4,
+    "2026-09-23": 4,
+    "2026-09-24": 3,
+    "2026-09-25": 7,
+    "2026-09-26": 6,
+    "2026-09-27": 3,
+    "2026-09-28": 6,
+    "2026-09-29": 5,
+    "2026-09-30": 3
+  },
+  "top_categories": [
+    {
+      "category": "Technical issue",
+      "count": 49
+    },
+    {
+      "category": "Refund request",
+      "count": 34
+    },
+    {
+      "category": "Billing inquiry",
+      "count": 30
+    },
+    {
+      "category": "Product inquiry",
+      "count": 18
+    },
+    {
+      "category": "Cancellation request",
+      "count": 16
+    }
+  ],
+  "by_channel": {
+    "Email": 48,
+    "Chat": 47,
+    "Phone": 27,
+    "Social media": 25
+  },
+  "by_priority": {
+    "Medium": 58,
+    "Low": 44,
+    "High": 29,
+    "Critical": 16
+  },
+  "by_status": {
+    "Closed": 57,
+    "Open": 49,
+    "Pending Customer Response": 41
+  }
+}

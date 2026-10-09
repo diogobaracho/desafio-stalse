@@ -1,0 +1,6 @@
+[
+  {"Ticket ID": "1", "Created At": "2026-10-01", "Ticket Type": "Billing inquiry", "Ticket Channel": "Email", "Ticket Priority": "High", "Ticket Status": "Open"},
+  {"Ticket ID": "2", "Created At": "2026-10-01T09:30:00Z", "Ticket Type": "Technical issue", "Ticket Channel": "Chat", "Ticket Priority": "Low", "Ticket Status": "Closed"},
+  {"Ticket ID": "3", "Created At": "2026-10-02", "Ticket Type": "Billing inquiry", "Ticket Channel": "Email", "Ticket Priority": "Medium", "Ticket Status": "Closed"},
+  {"Ticket ID": "4", "Created At": "2026-10-03", "Ticket Type": "Refund request", "Ticket Channel": "Phone", "Ticket Priority": "High", "Ticket Status": "Open"}
+]

@@ -1,0 +1,6 @@
+Ticket ID,Created At,Ticket Type,Ticket Channel,Ticket Priority
+1,2026-10-01,Billing inquiry,Email,High
+2,not a date,Technical issue,Chat,Low
+3,2026-02-30,Billing inquiry,Email,Medium
+4,,Refund request,Phone,High
+5,2026-10-02T23:59:00-03:00,Refund request,Phone,Low
