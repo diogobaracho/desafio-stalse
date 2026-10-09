@@ -49,12 +49,12 @@ export default async function TicketPage({ params }: Props) {
   return (
     <>
       <BackLink label={t("common.backToList")} />
-      <section className="card border-0 shadow-sm bg-warning-subtle mt-3 mb-4">
-        <div className="card-body p-4">
-          <h1 className="display-6 mb-2">
+      <section className="card border-0 shadow-sm bg-warning-subtle mt-3 mb-3 mb-sm-4">
+        <div className="card-body p-3 p-sm-4">
+          <h1 className="display-6 mb-0 mb-sm-2 text-break">
             {t("ticket.title", { id: ticket.id })} — {ticket.subject}
           </h1>
-          <p className="lead mb-0">{t("ticket.triageHint")}</p>
+          <p className="lead mb-0 d-none d-sm-block">{t("ticket.triageHint")}</p>
         </div>
       </section>
       <TicketDetail initialTicket={ticket} readOnly={readOnly} />
@@ -64,7 +64,7 @@ export default async function TicketPage({ params }: Props) {
 
 function BackLink({ label }: { label: string }) {
   return (
-    <p className="mb-0 mt-3">
+    <p className="mb-0 mt-1 mt-sm-3 d-grid d-sm-block">
       <Link href="/tickets" className="btn btn-outline-primary rounded-pill">
         ← {label}
       </Link>

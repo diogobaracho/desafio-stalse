@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { delay, http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
@@ -14,6 +14,14 @@ function renderDetail(readOnly = false) {
   const ticket = makeTicket();
   renderWithIntl(<TicketDetail initialTicket={ticket} readOnly={readOnly} />);
   return ticket;
+}
+
+function choiceButton(group: "Status" | "Prioridade", label: string) {
+  return within(screen.getByRole("group", { name: group })).getByRole("button", { name: label });
+}
+
+function choiceButtons(group: "Status" | "Prioridade") {
+  return within(screen.getByRole("group", { name: group })).getAllByRole("button");
 }
 
 describe("TicketDetail", () => {
@@ -44,7 +52,7 @@ describe("TicketDetail", () => {
     const user = userEvent.setup();
     renderDetail();
 
-    await user.selectOptions(screen.getByLabelText("Status"), "closed");
+    await user.click(choiceButton("Status", "Fechado"));
     await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
 
     expect(
@@ -53,7 +61,7 @@ describe("TicketDetail", () => {
     expect(body).toEqual({ status: "closed" });
     expect(screen.getByTestId("current-status")).toHaveTextContent("Fechado");
     expect(screen.getByTestId("current-priority")).toHaveTextContent("Alta");
-    expect(screen.getByLabelText("Prioridade")).toHaveValue("high");
+    expect(choiceButton("Prioridade", "Alta")).toHaveAttribute("aria-pressed", "true");
   });
 
   it("disables the form while saving and ignores double submits", async () => {
@@ -68,12 +76,12 @@ describe("TicketDetail", () => {
     const user = userEvent.setup();
     renderDetail();
 
-    await user.selectOptions(screen.getByLabelText("Prioridade"), "high");
+    await user.click(choiceButton("Prioridade", "Alta"));
     const button = screen.getByRole("button", { name: "Salvar alterações" });
     await user.dblClick(button);
 
     expect(screen.getByRole("button", { name: "Salvando…" })).toBeDisabled();
-    expect(screen.getByLabelText("Status")).toBeDisabled();
+    for (const button of choiceButtons("Status")) expect(button).toBeDisabled();
     await screen.findByText(/Alterações salvas/);
     expect(calls).toBe(1);
   });
@@ -83,7 +91,7 @@ describe("TicketDetail", () => {
     const user = userEvent.setup();
     renderDetail();
 
-    await user.selectOptions(screen.getByLabelText("Status"), "closed");
+    await user.click(choiceButton("Status", "Fechado"));
     await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
 
     expect(
@@ -98,10 +106,20 @@ describe("TicketDetail", () => {
     const user = userEvent.setup();
     renderDetail();
 
-    await user.selectOptions(screen.getByLabelText("Status"), "closed");
+    await user.click(choiceButton("Status", "Fechado"));
     await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
 
     expect(await screen.findByText(/somente leitura/)).toBeInTheDocument();
+  });
+
+  it("shows one button per status and priority, with the current values pressed", () => {
+    renderDetail();
+
+    expect(choiceButtons("Status").map((b) => b.textContent)).toEqual(["Aberto", "Em andamento", "Fechado"]);
+    expect(choiceButtons("Prioridade").map((b) => b.textContent)).toEqual(["Baixa", "Média", "Alta"]);
+    expect(choiceButton("Status", "Aberto")).toHaveAttribute("aria-pressed", "true");
+    expect(choiceButton("Status", "Fechado")).toHaveAttribute("aria-pressed", "false");
+    expect(choiceButton("Prioridade", "Média")).toHaveAttribute("aria-pressed", "true");
   });
 
   it("does not call the API when nothing changed", async () => {
@@ -124,8 +142,9 @@ describe("TicketDetail", () => {
   it("disables triage controls in read-only mode", () => {
     renderDetail(true);
 
-    expect(screen.getByLabelText("Status")).toBeDisabled();
-    expect(screen.getByLabelText("Prioridade")).toBeDisabled();
+    for (const button of [...choiceButtons("Status"), ...choiceButtons("Prioridade")]) {
+      expect(button).toBeDisabled();
+    }
     expect(screen.getByRole("button", { name: "Salvar alterações" })).toBeDisabled();
   });
 });

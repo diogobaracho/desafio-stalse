@@ -26,33 +26,40 @@ function BreakdownTable({
         <h2 id={headingId} className="h4 mb-3">
           {title}
         </h2>
-        <div className={scrollable ? "table-responsive" : undefined}>
+        {/* Long series (e.g. 730 days) scroll inside the card; focusable so keyboards can scroll it. */}
+        <div
+          className={scrollable ? "table-responsive overflow-y-auto position-relative" : undefined}
+          style={scrollable ? { maxHeight: "24rem" } : undefined}
+          tabIndex={scrollable ? 0 : undefined}
+        >
           <table className="table table-sm align-middle mb-0">
-          <thead>
-            <tr className="text-muted">
-              <th scope="col">{labelHeader}</th>
-              <th scope="col">{t("count")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(([label, count]) => {
-              const share = total > 0 ? count / total : 0;
-              return (
-                <tr key={label}>
-                  <th scope="row" className="fw-normal">
-                    {label}
-                  </th>
-                  <td>
-                    {format.number(count)}
-                    <span className="visually-hidden">
-                      {" "}
-                      ({t("share", { percent: format.number(share, { style: "percent" }) })})
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
+            <thead className={scrollable ? "sticky-top" : undefined}>
+              <tr className="text-muted">
+                <th scope="col">{labelHeader}</th>
+                <th scope="col" className="text-end">
+                  {t("count")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(([label, count]) => {
+                const share = total > 0 ? count / total : 0;
+                return (
+                  <tr key={label}>
+                    <th scope="row" className="fw-normal text-break">
+                      {label}
+                    </th>
+                    <td className="text-end text-nowrap">
+                      {format.number(count)}
+                      <span className="visually-hidden">
+                        {" "}
+                        ({t("share", { percent: format.number(share, { style: "percent" }) })})
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
           </table>
         </div>
       </div>
@@ -75,7 +82,10 @@ export function MetricsView({ metrics }: { metrics: Metrics }) {
 
   return (
     <>
-      <p className="alert alert-primary border shadow-sm d-flex gap-2 mb-4" data-testid="metrics-provenance">
+      <p
+        className="alert alert-primary border shadow-sm d-flex gap-2 mb-3 mb-sm-4 text-break"
+        data-testid="metrics-provenance"
+      >
         <span aria-hidden="true">ⓘ</span>{" "}
         {t("provenance", {
           file: metrics.source.file,
@@ -85,7 +95,7 @@ export function MetricsView({ metrics }: { metrics: Metrics }) {
         })}
       </p>
 
-      <ul className="row g-3 list-unstyled mb-4">
+      <ul className="row g-3 list-unstyled mb-3 mb-sm-4">
         <li className="col-12 col-sm-6 col-xl-3">
           <div className="card border-0 shadow-sm h-100 bg-light">
             <div className="card-body">
@@ -115,11 +125,11 @@ export function MetricsView({ metrics }: { metrics: Metrics }) {
             <div className="card border-0 shadow-sm h-100 bg-light">
               <div className="card-body">
                 <p className="text-muted mb-1">{t("period")}</p>
-                <p className="lead mb-0">
-              {t("periodValue", {
-                start: formatDay(metrics.date_range.start),
-                end: formatDay(metrics.date_range.end),
-              })}
+                <p className="lead mb-0 text-break">
+                  {t("periodValue", {
+                    start: formatDay(metrics.date_range.start),
+                    end: formatDay(metrics.date_range.end),
+                  })}
                 </p>
               </div>
             </div>
@@ -129,47 +139,47 @@ export function MetricsView({ metrics }: { metrics: Metrics }) {
 
       <div className="row g-3">
         <div className="col-12 col-xl-6">
-        <BreakdownTable
-          title={t("topCategories")}
-          labelHeader={t("label")}
-          total={total}
-          rows={metrics.top_categories.map((c) => [c.category, c.count])}
-        />
+          <BreakdownTable
+            title={t("topCategories")}
+            labelHeader={t("label")}
+            total={total}
+            rows={metrics.top_categories.map((c) => [c.category, c.count])}
+          />
         </div>
         <div className="col-12 col-xl-6">
-        <BreakdownTable
-          title={t("byChannel")}
-          labelHeader={t("label")}
-          total={total}
-          rows={Object.entries(metrics.by_channel)}
-        />
+          <BreakdownTable
+            title={t("byChannel")}
+            labelHeader={t("label")}
+            total={total}
+            rows={Object.entries(metrics.by_channel)}
+          />
         </div>
         <div className="col-12 col-xl-6">
-        <BreakdownTable
-          title={t("byPriority")}
-          labelHeader={t("label")}
-          total={total}
-          rows={Object.entries(metrics.by_priority)}
-        />
+          <BreakdownTable
+            title={t("byPriority")}
+            labelHeader={t("label")}
+            total={total}
+            rows={Object.entries(metrics.by_priority)}
+          />
         </div>
         {metrics.by_status && (
           <div className="col-12 col-xl-6">
-          <BreakdownTable
-            title={t("byStatus")}
-            labelHeader={t("label")}
-            total={total}
-            rows={Object.entries(metrics.by_status)}
-          />
+            <BreakdownTable
+              title={t("byStatus")}
+              labelHeader={t("label")}
+              total={total}
+              rows={Object.entries(metrics.by_status)}
+            />
           </div>
         )}
         <div className="col-12">
-        <BreakdownTable
-          title={t("recordsByDay")}
-          labelHeader={t("day")}
-          total={total}
-          scrollable
-          rows={Object.entries(metrics.records_by_day).map(([day, n]) => [formatDay(day), n])}
-        />
+          <BreakdownTable
+            title={t("recordsByDay")}
+            labelHeader={t("day")}
+            total={total}
+            scrollable
+            rows={Object.entries(metrics.records_by_day).map(([day, n]) => [formatDay(day), n])}
+          />
         </div>
       </div>
     </>

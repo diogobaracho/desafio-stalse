@@ -7,7 +7,7 @@ export default function TicketNotFound() {
   const t = useTranslations();
   return (
     <div className="mt-4">
-      <h1 className="display-6 mb-3">{t("ticket.notFoundTitle")}</h1>
+      <h1 className="display-6 mb-3 text-break">{t("ticket.notFoundTitle")}</h1>
       <StateMessage
         variant="empty"
         title={t("ticket.notFoundTitle")}

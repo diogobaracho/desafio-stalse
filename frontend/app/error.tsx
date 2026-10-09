@@ -18,7 +18,7 @@ export default function ErrorBoundary({
   }, [error]);
   return (
     <div className="py-4">
-      <h1 className="display-6 mb-3">{t("errorPage.title")}</h1>
+      <h1 className="display-6 mb-3 text-break">{t("errorPage.title")}</h1>
       <StateMessage
         variant="error"
         title={t("errorPage.title")}

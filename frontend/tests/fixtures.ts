@@ -32,7 +32,7 @@ export const tickets: Ticket[] = [
 
 export const metrics: Metrics = {
   generated_at: "2026-09-30T00:00:00Z",
-  source: { file: "sample_tickets.csv", rows_read: 150 },
+  source: { file: "customer_support_tickets.csv", rows_read: 150 },
   total_records: 147,
   invalid_dates_dropped: 3,
   date_range: { start: "2026-09-01", end: "2026-09-30" },

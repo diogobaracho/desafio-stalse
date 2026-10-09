@@ -19,11 +19,11 @@ test.describe("Inbox critical path", () => {
     );
 
     // 4. Change priority to a different value (works on re-runs against the same database)
-    const prioritySelect = page.getByLabel("Prioridade");
-    const current = await prioritySelect.inputValue();
-    const next = current === "low" ? "medium" : "low";
-    const nextLabel = next === "low" ? "Baixa" : "Média";
-    await prioritySelect.selectOption(next);
+    const priorityGroup = page.getByRole("group", { name: "Prioridade" });
+    const lowIsCurrent =
+      (await priorityGroup.getByRole("button", { name: "Baixa" }).getAttribute("aria-pressed")) === "true";
+    const nextLabel = lowIsCurrent ? "Média" : "Baixa";
+    await priorityGroup.getByRole("button", { name: nextLabel }).click();
     await page.getByRole("button", { name: "Salvar alterações" }).click();
 
     // 5. Server-confirmed state, also after a reload

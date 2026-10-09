@@ -28,7 +28,7 @@ describe("MetricsView", () => {
     renderWithIntl(<MetricsView metrics={metrics} />);
 
     expect(screen.getByTestId("metrics-provenance")).toHaveTextContent(
-      "Gerado pelo pipeline de ETL a partir de sample_tickets.csv · dados até 30 de set. de 2026.",
+      "Gerado pelo pipeline de ETL a partir de customer_support_tickets.csv · dados até 30 de set. de 2026.",
     );
   });
 

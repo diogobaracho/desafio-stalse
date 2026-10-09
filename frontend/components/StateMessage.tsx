@@ -20,9 +20,9 @@ export function StateMessage({ variant, title, description, action }: Props) {
       aria-busy={variant === "loading" || undefined}
       data-state={variant}
     >
-      <p className="fw-semibold mb-1">{title}</p>
-      {description && <p className="mb-0">{description}</p>}
-      {action && <div className="mt-3">{action}</div>}
+      <p className="fw-semibold mb-1 text-break">{title}</p>
+      {description && <p className="mb-0 text-break">{description}</p>}
+      {action && <div className="mt-3 d-grid d-sm-block">{action}</div>}
     </div>
   );
 }

@@ -19,12 +19,12 @@ export function LanguageSwitcher() {
       <label htmlFor={id} className="visually-hidden">
         {t("language")}
       </label>
-      <span className="small text-muted" aria-hidden="true">
+      <span className="d-none d-sm-inline small text-muted" aria-hidden="true">
         🌐
       </span>
       <select
         id={id}
-        className="form-select form-select-sm rounded-pill"
+        className="form-select rounded-pill"
         value={locale}
         disabled={pending}
         onChange={(event) => {

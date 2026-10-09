@@ -12,12 +12,12 @@ export default async function TicketsPage() {
   const t = await getTranslations("tickets");
   return (
     <>
-      <section className="container-fluid px-0 mb-4">
+      <section className="container-fluid px-0 mb-3 mb-sm-4">
         <div className="row g-0">
           <div className="col-12">
             <div className="card border-0 shadow-sm bg-primary-subtle">
-              <div className="card-body p-4 p-lg-5">
-                <h1 className="display-6 mb-2">{t("title")}</h1>
+              <div className="card-body p-3 p-sm-4 p-lg-5">
+                <h1 className="display-6 mb-2 text-break">{t("title")}</h1>
                 <p className="lead mb-0">{t("subtitle")}</p>
               </div>
             </div>

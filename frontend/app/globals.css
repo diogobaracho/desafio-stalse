@@ -1,0 +1,7 @@
+/* The only custom rule: Bootstrap's smallest breakpoint (sm) is 576px, but the header
+   brand text must be hidden only on very narrow phones; the logo link keeps an aria-label. */
+@media (max-width: 359.98px) {
+  header .brand-text {
+    display: none !important;
+  }
+}

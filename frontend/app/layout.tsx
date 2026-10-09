@@ -10,6 +10,7 @@ import { isReadOnly } from "@/lib/api/health";
 import { getBrand } from "@/lib/brand/load";
 import { localized } from "@/lib/brand/schema";
 
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -28,21 +29,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
   return (
     <html lang={locale}>
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body className="bg-light text-dark d-flex flex-column min-vh-100">
         <NextIntlClientProvider>
           <a href="#main" className="visually-hidden-focusable m-3 d-inline-block">
             {t("skipToContent")}
           </a>
           <SiteHeader brand={brand} />
-          <main id="main" className="container flex-grow-1 py-4 pb-5">
+          <main id="main" className="container flex-grow-1 py-3 py-sm-4 pb-5">
             {readOnly && <ReadOnlyBanner />}
             {children}
           </main>
