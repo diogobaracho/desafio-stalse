@@ -14,7 +14,9 @@ test.describe("Inbox critical path", () => {
     // 3. Ticket detail
     await page.getByRole("link", { name: /Aplicativo fecha ao abrir o carrinho/ }).click();
     await expect(page).toHaveURL(/\/tickets\/\d+$/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Aplicativo fecha ao abrir o carrinho");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Aplicativo fecha ao abrir o carrinho",
+    );
 
     // 4. Change priority to a different value (works on re-runs against the same database)
     const prioritySelect = page.getByLabel("Prioridade");
