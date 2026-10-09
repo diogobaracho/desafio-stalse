@@ -1,0 +1,22 @@
+{
+  "productName": "Mini Inbox",
+  "companyName": "Stalse",
+  "tagline": {
+    "pt-BR": "Atendimento ao cliente simples e organizado",
+    "en": "Simple, organized customer support"
+  },
+  "logo": { "src": "/brand/logo.svg", "alt": "Mini Inbox" },
+  "favicon": "/brand/logo.svg",
+  "colors": { "primary": "#1d4ed8", "primaryContrast": "#ffffff", "accent": "#0f766e" },
+  "contact": {
+    "email": "suporte@example.com",
+    "phone": "+55 11 4000-0000",
+    "website": "https://example.com",
+    "address": "Av. Exemplo, 1000 – São Paulo, SP",
+    "hours": {
+      "pt-BR": "Segunda a sexta, 9h às 18h",
+      "en": "Monday to Friday, 9am to 6pm (BRT)"
+    }
+  },
+  "social": []
+}

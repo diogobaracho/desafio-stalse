@@ -1,0 +1,134 @@
+{
+  "common": {
+    "skipToContent": "Pular para o conteúdo",
+    "loading": "Carregando…",
+    "retry": "Tentar novamente",
+    "backToList": "Voltar para a lista de tickets",
+    "language": "Idioma",
+    "languages": { "pt-BR": "Português (Brasil)", "en": "English" }
+  },
+  "nav": {
+    "label": "Navegação principal",
+    "tickets": "Tickets",
+    "dashboard": "Painel"
+  },
+  "footer": {
+    "contact": "Contato",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "website": "Site",
+    "address": "Endereço",
+    "hours": "Horário de atendimento",
+    "rights": "© {year} {company}. Todos os direitos reservados."
+  },
+  "readOnly": {
+    "title": "Ambiente somente leitura",
+    "description": "Este ambiente é apenas para consulta. Alterações em tickets estão desativadas."
+  },
+  "tickets": {
+    "title": "Caixa de entrada",
+    "subtitle": "Tickets de atendimento ao cliente, dos mais recentes aos mais antigos.",
+    "searchLabel": "Buscar tickets",
+    "searchPlaceholder": "Cliente ou assunto…",
+    "searchHint": "A busca considera o nome do cliente e o assunto.",
+    "tableCaption": "Lista de tickets",
+    "resultsCount": "{count, plural, =0 {Nenhum ticket encontrado} one {# ticket} other {# tickets}}",
+    "loading": "Carregando tickets…",
+    "emptyTitle": "Nenhum ticket encontrado",
+    "emptyDescription": "Tente outro termo de busca.",
+    "emptyInbox": "A caixa de entrada está vazia.",
+    "errorTitle": "Não foi possível carregar os tickets",
+    "columns": {
+      "createdAt": "Criado em",
+      "customer": "Cliente",
+      "channel": "Canal",
+      "subject": "Assunto",
+      "status": "Status",
+      "priority": "Prioridade"
+    },
+    "openTicket": "Abrir ticket #{id}: {subject}"
+  },
+  "ticket": {
+    "title": "Ticket #{id}",
+    "loading": "Carregando ticket…",
+    "details": "Detalhes",
+    "fields": {
+      "id": "Número",
+      "createdAt": "Criado em",
+      "updatedAt": "Atualizado em",
+      "customer": "Cliente",
+      "channel": "Canal",
+      "subject": "Assunto",
+      "description": "Descrição",
+      "status": "Status",
+      "priority": "Prioridade"
+    },
+    "triage": "Triagem",
+    "triageHint": "Ao fechar ou escalar para alta prioridade, a automação (n8n) é notificada.",
+    "save": "Salvar alterações",
+    "saving": "Salvando…",
+    "saved": "Alterações salvas. Status: {status}; prioridade: {priority}.",
+    "noChanges": "Nenhuma alteração para salvar.",
+    "saveFailed": "Não foi possível salvar: {reason}",
+    "notFoundTitle": "Ticket não encontrado",
+    "notFoundDescription": "O ticket solicitado não existe ou foi removido.",
+    "errorTitle": "Não foi possível carregar o ticket"
+  },
+  "status": {
+    "open": "Aberto",
+    "in_progress": "Em andamento",
+    "closed": "Fechado"
+  },
+  "priority": {
+    "low": "Baixa",
+    "medium": "Média",
+    "high": "Alta"
+  },
+  "channel": {
+    "email": "E-mail",
+    "chat": "Chat",
+    "phone": "Telefone",
+    "whatsapp": "WhatsApp",
+    "web": "Web"
+  },
+  "dashboard": {
+    "title": "Painel de métricas",
+    "subtitle": "Indicadores de atendimento gerados pelo pipeline de ETL.",
+    "loading": "Carregando métricas…",
+    "provenance": "Gerado pelo pipeline de ETL a partir de {file} · dados até {generatedAt}.",
+    "errorTitle": "Não foi possível carregar as métricas",
+    "emptyTitle": "Ainda não há dados de métricas",
+    "emptyDescription": "Execute o pipeline de ETL para gerar as métricas (make etl).",
+    "totalRecords": "Registros válidos",
+    "rowsRead": "Linhas lidas",
+    "invalidDates": "Datas inválidas descartadas",
+    "period": "Período",
+    "periodValue": "{start} a {end}",
+    "topCategories": "Principais categorias",
+    "byChannel": "Por canal",
+    "byPriority": "Por prioridade",
+    "byStatus": "Por status",
+    "recordsByDay": "Registros por dia",
+    "label": "Item",
+    "count": "Quantidade",
+    "day": "Dia",
+    "share": "{percent} do total"
+  },
+  "errors": {
+    "generic": "Ocorreu um erro inesperado. Tente novamente.",
+    "network_error": "Não foi possível conectar à API. Verifique se o backend está em execução.",
+    "ticket_not_found": "Ticket não encontrado.",
+    "validation_error": "Os dados enviados são inválidos.",
+    "read_only_mode": "Este ambiente é somente leitura; alterações estão desativadas.",
+    "metrics_unavailable": "As métricas ainda não estão disponíveis. Execute o pipeline de ETL.",
+    "internal_error": "Erro interno do servidor. Tente novamente mais tarde."
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "O endereço acessado não existe."
+  },
+  "errorPage": {
+    "title": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado ao exibir esta página."
+  }
+}

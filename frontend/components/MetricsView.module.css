@@ -1,0 +1,67 @@
+.provenance {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin: 0 0 1.25rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.cardLabel {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.cardValue {
+  margin: 0.25rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.4rem 0.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td:last-child,
+.table th:last-child {
+  text-align: right;
+}
+
+.bar {
+  display: block;
+  height: 6px;
+  margin-top: 0.25rem;
+  border-radius: 3px;
+  background: var(--brand-accent);
+}
+
+.scroll {
+  max-height: 360px;
+  overflow-y: auto;
+}

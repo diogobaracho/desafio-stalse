@@ -1,0 +1,41 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+}
+
+.icon {
+  font-size: 0.8em;
+}
+
+/* Text + icon carry the meaning; color only reinforces it (WCAG 1.4.1). */
+.open {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+.in_progress {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+.closed {
+  background: #f3f4f6;
+  color: #374151;
+}
+.low {
+  background: #f3f4f6;
+  color: #374151;
+}
+.medium {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+.high {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
