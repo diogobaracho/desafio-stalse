@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "created_at": "2026-09-21T09:12:00Z",
+    "customer_name": "Mariana Souza",
+    "channel": "email",
+    "subject": "Pagamento recusado no cartão de crédito",
+    "description": "Tentei finalizar a compra três vezes e o pagamento foi recusado, mas o banco diz que não há bloqueio. Pedido #48213.",
+    "status": "open",
+    "priority": "high"
+  },
+  {
+    "id": 2,
+    "created_at": "2026-09-21T10:40:00Z",
+    "customer_name": "Carlos Henrique Lima",
+    "channel": "chat",
+    "subject": "Pedido não entregue após 10 dias",
+    "description": "O rastreio está parado em 'em trânsito' desde o dia 11. Preciso do produto para um evento no fim de semana.",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "id": 3,
+    "created_at": "2026-09-22T08:05:00Z",
+    "customer_name": "Ana Beatriz Rocha",
+    "channel": "whatsapp",
+    "subject": "Troca de tamanho de tênis",
+    "description": "Recebi o tênis no tamanho 37, mas preciso do 38. Como faço a troca sem custo?",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "id": 4,
+    "created_at": "2026-09-22T14:22:00Z",
+    "customer_name": "João Pedro Almeida",
+    "channel": "phone",
+    "subject": "Cobrança duplicada na fatura",
+    "description": "Apareceram duas cobranças de R$ 289,90 referentes ao mesmo pedido na minha fatura de setembro.",
+    "status": "open",
+    "priority": "high"
+  },
+  {
+    "id": 5,
+    "created_at": "2026-09-23T11:30:00Z",
+    "customer_name": "Fernanda Costa",
+    "channel": "email",
+    "subject": "Nota fiscal com CNPJ incorreto",
+    "description": "A nota fiscal do pedido #47790 saiu com o CNPJ da filial errada. Preciso da correção para o fechamento contábil.",
+    "status": "in_progress",
+    "priority": "medium"
+  },
+  {
+    "id": 6,
+    "created_at": "2026-09-23T16:48:00Z",
+    "customer_name": "Rafael Martins",
+    "channel": "web",
+    "subject": "Não consigo redefinir minha senha",
+    "description": "O e-mail de redefinição de senha não chega, já verifiquei a caixa de spam.",
+    "status": "closed",
+    "priority": "low"
+  },
+  {
+    "id": 7,
+    "created_at": "2026-09-24T09:55:00Z",
+    "customer_name": "Juliana Ferreira",
+    "channel": "chat",
+    "subject": "Cupom de desconto não aplicado",
+    "description": "O cupom BEMVINDO10 aparece como válido, mas o desconto não é aplicado no total do carrinho.",
+    "status": "open",
+    "priority": "low"
+  },
+  {
+    "id": 8,
+    "created_at": "2026-09-24T13:10:00Z",
+    "customer_name": "Lucas Oliveira",
+    "channel": "email",
+    "subject": "Produto chegou com defeito",
+    "description": "A cafeteira chegou com a jarra trincada. Envio fotos em anexo e gostaria de reposição.",
+    "status": "in_progress",
+    "priority": "medium"
+  },
+  {
+    "id": 9,
+    "created_at": "2026-09-25T10:00:00Z",
+    "customer_name": "Patrícia Gomes",
+    "channel": "phone",
+    "subject": "Cancelamento de assinatura mensal",
+    "description": "Quero cancelar a assinatura mensal antes da próxima renovação, no dia 30.",
+    "status": "closed",
+    "priority": "medium"
+  },
+  {
+    "id": 10,
+    "created_at": "2026-09-25T15:35:00Z",
+    "customer_name": "Bruno Carvalho",
+    "channel": "whatsapp",
+    "subject": "Endereço de entrega errado",
+    "description": "Digitei o número da casa errado (120 em vez de 210). O pedido ainda pode ser corrigido?",
+    "status": "open",
+    "priority": "high"
+  },
+  {
+    "id": 11,
+    "created_at": "2026-09-26T08:20:00Z",
+    "customer_name": "Camila Ribeiro",
+    "channel": "web",
+    "subject": "Dúvida sobre prazo de garantia",
+    "description": "Qual é o prazo de garantia do notebook comprado em julho? Ele apresentou falha no teclado.",
+    "status": "open",
+    "priority": "low"
+  },
+  {
+    "id": 12,
+    "created_at": "2026-09-26T12:45:00Z",
+    "customer_name": "Diego Nascimento",
+    "channel": "email",
+    "subject": "Estorno de pagamento via Pix não recebido",
+    "description": "Cancelei o pedido #48001 há 7 dias e o estorno do Pix ainda não caiu na conta.",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "id": 13,
+    "created_at": "2026-09-27T09:15:00Z",
+    "customer_name": "Larissa Mendes",
+    "channel": "chat",
+    "subject": "Alteração de forma de pagamento",
+    "description": "Gostaria de trocar o boleto por cartão de crédito no pedido que ainda não foi pago.",
+    "status": "closed",
+    "priority": "low"
+  },
+  {
+    "id": 14,
+    "created_at": "2026-09-28T17:05:00Z",
+    "customer_name": "Thiago Barbosa",
+    "channel": "phone",
+    "subject": "Aplicativo fecha ao abrir o carrinho",
+    "description": "Desde a última atualização o aplicativo fecha sozinho quando abro o carrinho (Android 14).",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "id": 15,
+    "created_at": "2026-09-29T10:30:00Z",
+    "customer_name": "Gabriela Pires",
+    "channel": "email",
+    "subject": "Solicitação de segunda via de boleto",
+    "description": "O boleto venceu ontem. Preciso de uma segunda via com nova data de vencimento.",
+    "status": "closed",
+    "priority": "low"
+  },
+  {
+    "id": 16,
+    "created_at": "2026-09-30T14:00:00Z",
+    "customer_name": "Rodrigo Teixeira",
+    "channel": "whatsapp",
+    "subject": "Item faltando no pedido",
+    "description": "Pedi três camisetas e recebi apenas duas. A nota fiscal lista as três.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "id": 17,
+    "created_at": "2026-10-01T11:11:00Z",
+    "customer_name": "Aline Cardoso",
+    "channel": "web",
+    "subject": "Programa de pontos não creditado",
+    "description": "Os pontos da compra de agosto não foram creditados na minha conta do programa de fidelidade.",
+    "status": "in_progress",
+    "priority": "low"
+  },
+  {
+    "id": 18,
+    "created_at": "2026-10-02T15:20:00Z",
+    "customer_name": "Eduardo Moreira",
+    "channel": "chat",
+    "subject": "Atraso na instalação agendada",
+    "description": "O técnico não compareceu à instalação do ar-condicionado agendada para hoje às 14h.",
+    "status": "open",
+    "priority": "high"
+  },
+  {
+    "id": 19,
+    "created_at": "2026-10-03T09:40:00Z",
+    "customer_name": "Vanessa Araújo",
+    "channel": "email",
+    "subject": "Pedido de reembolso parcial",
+    "description": "Um dos itens do kit veio diferente da foto. Aceito ficar com o produto mediante reembolso parcial.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "id": 20,
+    "created_at": "2026-10-04T13:25:00Z",
+    "customer_name": "Marcelo Dias",
+    "channel": "phone",
+    "subject": "Atualização de dados cadastrais",
+    "description": "Mudei de telefone e não consigo receber o código de verificação para atualizar o cadastro.",
+    "status": "closed",
+    "priority": "medium"
+  }
+]
