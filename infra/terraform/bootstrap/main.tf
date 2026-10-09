@@ -119,3 +119,11 @@ resource "azurerm_role_assignment" "ci_state" {
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.github[each.key].principal_id
 }
+
+# Release promotion: the prod CI identity copies already-tested images from the dev registry
+# (az acr import) - images are never rebuilt for production.
+resource "azurerm_role_assignment" "prod_ci_pull_from_dev" {
+  scope                = azurerm_resource_group.env["dev"].id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.github["prod"].principal_id
+}

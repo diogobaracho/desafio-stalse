@@ -1,0 +1,82 @@
+# Infrastructure: plan on PRs (dev), apply dev on merge, apply prod only manually + approval.
+name: Terraform
+
+on:
+  pull_request:
+    paths: ["infra/terraform/**"]
+  push:
+    branches: [main]
+    paths: ["infra/terraform/**"]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to apply
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+concurrency:
+  group: terraform-${{ inputs.environment || 'dev' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  plan-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    # No `environment:` - the dev identity trusts the `pull_request` OIDC subject (plan only).
+    env:
+      ARM_USE_OIDC: "true"
+      ARM_CLIENT_ID: ${{ vars.DEV_AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_tenant_id: ${{ vars.AZURE_TENANT_ID }}
+      TF_VAR_unique_suffix: ${{ vars.UNIQUE_SUFFIX }}
+      TF_VAR_ci_principal_id: ${{ vars.DEV_CI_PRINCIPAL_ID }}
+      TF_VAR_humans_group_object_id: ${{ vars.HUMANS_GROUP_OBJECT_ID }}
+    defaults:
+      run:
+        working-directory: infra/terraform/envs/dev
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - run: terraform init -input=false -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT }}"
+      - id: plan
+        run: terraform plan -input=false -no-color -lock-timeout=5m -out=tfplan | tee plan.txt
+      - uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: terraform-dev
+          path: infra/terraform/envs/dev/plan.txt
+
+  apply:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # `dev` deploys on merge; `production` requires reviewers (GitHub environment protection).
+    environment: ${{ (inputs.environment || 'dev') == 'prod' && 'production' || 'dev' }}
+    env:
+      ARM_USE_OIDC: "true"
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_tenant_id: ${{ vars.AZURE_TENANT_ID }}
+      TF_VAR_unique_suffix: ${{ vars.UNIQUE_SUFFIX }}
+      TF_VAR_ci_principal_id: ${{ vars.CI_PRINCIPAL_ID }}
+      TF_VAR_humans_group_object_id: ${{ vars.HUMANS_GROUP_OBJECT_ID }}
+      TF_VAR_n8n_webhook_url: ${{ secrets.N8N_WEBHOOK_URL || 'none' }}
+    defaults:
+      run:
+        working-directory: infra/terraform/envs/${{ inputs.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - run: terraform init -input=false -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT }}"
+      - run: terraform plan -input=false -lock-timeout=5m -out=tfplan
+      - run: terraform apply -input=false -auto-approve tfplan
+      - name: Outputs to copy into the GitHub environment variables
+        run: terraform output

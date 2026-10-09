@@ -1,0 +1,24 @@
+name: Bug report
+description: Something does not work as specified
+labels: [bug]
+body:
+  - type: dropdown
+    id: env
+    attributes:
+      label: Environment
+      options: [local (compose), local (kind), azure-dev, azure-prod]
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations: { required: true }
+  - type: input
+    id: request-id
+    attributes:
+      label: X-Request-ID (from the API response / logs), if available

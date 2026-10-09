@@ -1,0 +1,20 @@
+name: Feature request
+description: Propose a new capability (becomes a Spec Kit spec)
+labels: [feature]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / user need
+      description: Who is affected and what do they need to achieve?
+    validations: { required: true }
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome & acceptance criteria
+      placeholder: "Given … When … Then …"
+    validations: { required: true }
+  - type: textarea
+    id: notes
+    attributes:
+      label: Constraints, out of scope, open questions

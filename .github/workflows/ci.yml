@@ -1,0 +1,262 @@
+# Continuous integration: every PR and every push to main.
+# Path filters run only the jobs for the components that changed (monorepo, independent
+# components). `ci-ok` aggregates results so branch protection needs one required check.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  UV_VERSION: "0.12.5"
+  NODE_VERSION: "24"
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      data: ${{ steps.filter.outputs.data }}
+      k8s: ${{ steps.filter.outputs.k8s }}
+      infra: ${{ steps.filter.outputs.infra }}
+      n8n: ${{ steps.filter.outputs.n8n }}
+      workflows: ${{ steps.filter.outputs.workflows }}
+      e2e: ${{ steps.filter.outputs.e2e }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            backend: ['backend/**', 'specs/001-ticket-inbox-api/contracts/**']
+            frontend: ['frontend/**']
+            data: ['data/**']
+            k8s: ['deploy/k8s/**', 'n8n/workflow.json']
+            infra: ['infra/**']
+            n8n: ['n8n/**']
+            workflows: ['.github/workflows/**']
+            e2e: ['backend/**', 'frontend/**', 'data/**', 'n8n/**', 'docker-compose.yml']
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: stalse
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: uv sync --frozen
+      - name: Lint & format
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Type check
+        run: uv run mypy app
+      - name: Tests + coverage gate (85%)
+        run: uv run pytest --cov --cov-report=term --cov-report=xml
+        env:
+          TEST_POSTGRES_URL: postgresql+psycopg://postgres:test@localhost:5432/stalse
+      - name: OpenAPI contract is up to date
+        run: uv run python -m scripts.export_openapi --check
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: backend-coverage
+          path: backend/coverage.xml
+
+  data:
+    needs: changes
+    if: needs.changes.outputs.data == 'true' || github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: data
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: data/uv.lock
+      - run: uv sync --frozen
+      - run: uv run ruff check . && uv run ruff format --check . && uv run mypy etl.py
+      - name: Tests + coverage gate (90%)
+        run: uv run pytest --cov --cov-report=term
+      - name: Committed metrics.json matches the pipeline output
+        run: |
+          uv run python etl.py --output /tmp/metrics.json
+          diff -u processed/metrics.json /tmp/metrics.json
+
+  frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - name: Tests + coverage gate (75%)
+        run: npm run test:coverage
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: /api
+
+  e2e:
+    needs: changes
+    if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Start the stack (docker compose)
+        run: |
+          docker compose up --build -d
+          for _ in $(seq 1 60); do
+            curl -sf http://localhost:3000/tickets >/dev/null && curl -sf http://localhost:8000/health >/dev/null && exit 0
+            sleep 3
+          done
+          docker compose ps; docker compose logs; exit 1
+      - run: npm ci && npx playwright install --with-deps chromium
+        working-directory: frontend
+      - name: Playwright critical path
+        run: npm run test:e2e
+        working-directory: frontend
+        env:
+          CI: "true"
+      - name: Closing a ticket notifies n8n (backend -> n8n integration)
+        run: |
+          curl -fsS -X PATCH http://localhost:8000/tickets/7 -H 'Content-Type: application/json' \
+            -d '{"status": "closed"}' > /dev/null
+          sleep 2
+          docker compose logs backend | grep "Webhook delivered"
+      - if: failure()
+        run: docker compose logs
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+
+  docker:
+    needs: changes
+    if: github.event_name != 'pull_request' || needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true' || needs.changes.outputs.data == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [backend, frontend, data]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - name: Build ${{ matrix.component }} image (no push)
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.component }}
+          push: false
+          cache-from: type=gha,scope=${{ matrix.component }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.component }}
+
+  k8s:
+    needs: changes
+    if: needs.changes.outputs.k8s == 'true' || github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/setup-kubectl@v5
+      - name: kustomize build + kubeconform (all overlays)
+        run: make k8s-validate
+      - name: deploy.sh renders azure-prod with every variable substituted
+        run: |
+          DRY_RUN=1 ACR_LOGIN_SERVER=example.azurecr.io KEYVAULT_NAME=kv BACKEND_CLIENT_ID=id \
+          AZURE_TENANT_ID=tenant INGRESS_HOST=stalse.example.com LETSENCRYPT_EMAIL=ops@example.com \
+          BACKEND_IMAGE=example.azurecr.io/stalse-backend@sha256:0 \
+          FRONTEND_IMAGE=example.azurecr.io/stalse-frontend@sha256:0 \
+          ETL_IMAGE=example.azurecr.io/stalse-etl@sha256:0 \
+          scripts/deploy.sh azure-prod > /dev/null
+
+  terraform:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true' || github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - uses: terraform-linters/setup-tflint@v6
+      - run: tflint --init --config="$PWD/infra/terraform/.tflint.hcl"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: fmt + validate + tflint (bootstrap, dev, prod)
+        run: make tf-validate
+
+  n8n:
+    needs: changes
+    if: needs.changes.outputs.n8n == 'true' || github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Workflow is valid JSON without credentials or secrets
+        run: |
+          python3 -c "import json; w = json.load(open('n8n/workflow.json')); assert w['nodes'] and w['connections']"
+          if grep -niE '"credentials"|api[_-]?key|token|password|secret|bearer' n8n/workflow.json; then
+            echo "::error::n8n/workflow.json looks like it contains credentials"; exit 1
+          fi
+
+  actionlint:
+    needs: changes
+    if: needs.changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: rhysd/actionlint@v1.7.12
+
+  ci-ok:
+    if: always()
+    needs: [backend, data, frontend, e2e, docker, k8s, terraform, n8n, actionlint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All required jobs passed (or were skipped)
+        run: |
+          echo '${{ toJSON(needs) }}' | python3 -c "
+          import json, sys
+          bad = {k: v['result'] for k, v in json.load(sys.stdin).items() if v['result'] in ('failure', 'cancelled')}
+          print(bad or 'ok'); sys.exit(1 if bad else 0)"

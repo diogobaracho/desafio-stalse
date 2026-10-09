@@ -1,0 +1,113 @@
+# Continuous delivery to Azure dev: every merge to main builds ONLY the changed components,
+# deploys them, and tags the full deployed image set with the commit SHA (used for promotion).
+name: CD dev
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - backend/**
+      - frontend/**
+      - data/**
+      - deploy/k8s/**
+      - scripts/deploy.sh
+  workflow_dispatch:
+    inputs:
+      all:
+        description: Build and deploy every component (required for the first deploy)
+        type: boolean
+        default: false
+
+concurrency:
+  group: cd-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ inputs.all || steps.filter.outputs.backend }}
+      frontend: ${{ inputs.all || steps.filter.outputs.frontend }}
+      data: ${{ inputs.all || steps.filter.outputs.data }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            backend: ['backend/**']
+            frontend: ['frontend/**']
+            data: ['data/**']
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/_build-push.yml
+    with: { component: backend, environment: dev }
+
+  frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/_build-push.yml
+    with: { component: frontend, environment: dev }
+
+  etl:
+    needs: changes
+    if: needs.changes.outputs.data == 'true'
+    uses: ./.github/workflows/_build-push.yml
+    with: { component: data, environment: dev }
+
+  deploy:
+    needs: [backend, frontend, etl]
+    # Run when builds succeeded or were skipped (manifest-only changes deploy too).
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: https://${{ vars.INGRESS_HOST }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: azure/setup-kubectl@v5
+      - uses: azure/setup-helm@v5
+      - uses: azure/use-kubelogin@v1.3
+        with:
+          kubelogin-version: latest
+      - name: Cluster credentials (Entra ID)
+        run: |
+          az aks get-credentials -g "${{ vars.AKS_RESOURCE_GROUP }}" -n "${{ vars.AKS_NAME }}" --overwrite-existing
+          kubelogin convert-kubeconfig -l azurecli
+      - name: Cluster add-ons (Traefik, cert-manager)
+        run: scripts/aks-addons.sh
+      - name: Deploy
+        run: scripts/deploy.sh azure-dev
+        env:
+          BACKEND_IMAGE: ${{ needs.backend.outputs.image }}
+          FRONTEND_IMAGE: ${{ needs.frontend.outputs.image }}
+          ETL_IMAGE: ${{ needs.etl.outputs.image }}
+          ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+          KEYVAULT_NAME: ${{ vars.KEYVAULT_NAME }}
+          BACKEND_CLIENT_ID: ${{ vars.BACKEND_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          INGRESS_HOST: ${{ vars.INGRESS_HOST }}
+          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL }}
+      - name: Tag the deployed image set with the commit SHA (release candidate)
+        run: |
+          set -euo pipefail
+          for target in deployment/backend deployment/frontend cronjob/etl; do
+            path='{.spec.template.spec.containers[0].image}'
+            [[ $target == cronjob/* ]] && path='{.spec.jobTemplate.spec.template.spec.containers[0].image}'
+            image=$(kubectl -n stalse get "$target" -o jsonpath="$path")
+            repo=${image#*/}; repo=${repo%%[@:]*}
+            az acr import --name "${{ vars.ACR_NAME }}" --source "$image" --image "$repo:${GITHUB_SHA}" --force
+          done
+      - name: Smoke test
+        run: curl -fsS "https://${{ vars.INGRESS_HOST }}/api/health"

@@ -1,0 +1,11 @@
+# Replace @stalse/* with real GitHub teams. Platform paths need platform review because they
+# affect production (read-only prod: changes reach it only through these files + CI/CD).
+*                     @stalse/engineering
+/backend/             @stalse/backend
+/frontend/            @stalse/frontend
+/data/                @stalse/data
+/deploy/              @stalse/platform
+/infra/               @stalse/platform
+/.github/workflows/   @stalse/platform
+/scripts/             @stalse/platform
+/.specify/memory/     @stalse/engineering

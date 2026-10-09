@@ -1,0 +1,79 @@
+# Release to Azure prod (READ-ONLY environment). Triggered by a v* tag; requires approval on the
+# `production` GitHub environment. Images are PROMOTED from dev by digest - never rebuilt.
+name: CD prod
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Tag or commit already deployed to dev (e.g. v1.2.0)
+        required: true
+
+concurrency:
+  group: cd-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  promote-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://${{ vars.INGRESS_HOST }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+      - name: Resolve release commit
+        id: rel
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "name=${{ inputs.ref || github.ref_name }}" >> "$GITHUB_OUTPUT"
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Promote dev images (same digests) into the prod registry
+        id: promote
+        run: |
+          set -euo pipefail
+          for repo in stalse-backend stalse-frontend stalse-etl; do
+            az acr import --name "${{ vars.ACR_NAME }}" \
+              --source "${{ vars.DEV_ACR_LOGIN_SERVER }}/$repo:${{ steps.rel.outputs.sha }}" \
+              --image "$repo:${{ steps.rel.outputs.name }}" --force
+            digest=$(az acr repository show --name "${{ vars.ACR_NAME }}" \
+              --image "$repo:${{ steps.rel.outputs.name }}" --query digest -o tsv)
+            key=$(echo "${repo#stalse-}" | tr '[:lower:]' '[:upper:]')
+            echo "${key}_IMAGE=${{ vars.ACR_LOGIN_SERVER }}/$repo@$digest" >> "$GITHUB_ENV"
+          done
+      - uses: azure/setup-kubectl@v5
+      - uses: azure/setup-helm@v5
+      - uses: azure/use-kubelogin@v1.3
+        with:
+          kubelogin-version: latest
+      - name: Cluster credentials (Entra ID)
+        run: |
+          az aks get-credentials -g "${{ vars.AKS_RESOURCE_GROUP }}" -n "${{ vars.AKS_NAME }}" --overwrite-existing
+          kubelogin convert-kubeconfig -l azurecli
+      - name: Cluster add-ons (Traefik, cert-manager)
+        run: scripts/aks-addons.sh
+      - name: Deploy (images pinned by digest)
+        run: scripts/deploy.sh azure-prod
+        env:
+          ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+          KEYVAULT_NAME: ${{ vars.KEYVAULT_NAME }}
+          BACKEND_CLIENT_ID: ${{ vars.BACKEND_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          INGRESS_HOST: ${{ vars.INGRESS_HOST }}
+          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL }}
+      - name: Smoke test (API up and read-only)
+        run: |
+          health=$(curl -fsS "https://${{ vars.INGRESS_HOST }}/api/health")
+          echo "$health"
+          echo "$health" | python3 -c "import json,sys; assert json.load(sys.stdin)['read_only'] is True"
