@@ -9,6 +9,11 @@ FRONTEND := frontend
 DATA := data
 TF_DIR := infra/terraform
 
+# Kaggle "Customer Support Ticket Dataset" (CC0): the ETL input committed in data/raw/.
+KAGGLE_DATASET := suraj520/customer-support-ticket-dataset
+KAGGLE_URL := https://www.kaggle.com/api/v1/datasets/download/$(KAGGLE_DATASET)
+KAGGLE_CSV := $(DATA)/raw/customer_support_tickets.csv
+
 .PHONY: help
 help: ## Show this help
 	@grep -hE '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "} {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -26,6 +31,15 @@ install: ## Install all dependencies (backend, data, frontend, Playwright browse
 .PHONY: seed
 seed: ## Create/migrate the database and load seed tickets (idempotent)
 	cd $(BACKEND) && uv run python -m app.db.init
+
+.PHONY: kaggle-download
+kaggle-download: ## Download the latest Kaggle dataset (CC0) into data/raw/ (no Kaggle account needed)
+	@tmp=$$(mktemp -d) && \
+	curl -fsSL -o $$tmp/dataset.zip $(KAGGLE_URL) && \
+	unzip -o -q $$tmp/dataset.zip $(notdir $(KAGGLE_CSV)) -d $(DATA)/raw && \
+	rm -rf $$tmp
+	@echo "Downloaded $(KAGGLE_CSV) from https://www.kaggle.com/datasets/$(KAGGLE_DATASET)"
+	@sha256sum $(KAGGLE_CSV) 2>/dev/null || shasum -a 256 $(KAGGLE_CSV)
 
 .PHONY: etl
 etl: ## Regenerate data/processed/metrics.json from the raw input

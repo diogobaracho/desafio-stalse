@@ -6,9 +6,8 @@ Pipeline (each step is a pure, individually tested function)::
 
 Run from the repository root::
 
-    python data/etl.py                     # synthetic sample -> data/processed/metrics.json
-    python data/etl.py --input data/raw/customer_support_tickets.csv \
-                       --generated-at 2026-10-08T00:00:00Z
+    python data/etl.py                     # Kaggle export -> data/processed/metrics.json
+    python data/etl.py --input other_export.json --generated-at 2026-10-08T00:00:00Z
 
 Determinism: identical input + identical ``generated_at`` => byte-identical output. When
 ``--generated-at`` is omitted, the latest valid ``created_at`` in the data is used ("data as of"),
@@ -33,14 +32,15 @@ import pandas as pd
 logger = logging.getLogger("etl")
 
 DATA_DIR = Path(__file__).resolve().parent
-DEFAULT_INPUT = DATA_DIR / "raw" / "sample_tickets.csv"
+# Kaggle "Customer Support Ticket Dataset" (CC0), committed unmodified; `make kaggle-download`.
+DEFAULT_INPUT = DATA_DIR / "raw" / "customer_support_tickets.csv"
 DEFAULT_OUTPUT = DATA_DIR / "processed" / "metrics.json"
 
 REQUIRED_COLUMNS = ("ticket_id", "created_at", "category", "channel", "priority")
 OPTIONAL_COLUMNS = ("status",)
 
-# Source column (after normalization) -> canonical column. Lets the Kaggle export
-# ("Customer Support Ticket Dataset") and the synthetic sample share one pipeline.
+# Source column (after normalization) -> canonical column. Maps the Kaggle export
+# ("Customer Support Ticket Dataset") onto the canonical names used by the metrics.
 COLUMN_ALIASES = {
     "date_of_purchase": "created_at",
     "ticket_type": "category",
