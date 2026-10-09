@@ -1,0 +1,20 @@
+# Debug override: backend under debugpy with hot reload.
+#   docker compose -f docker-compose.yml -f deploy/compose/docker-compose.debug.yml up --build
+# Then attach VS Code with the "Backend: attach to docker (debugpy)" launch config (port 5679).
+services:
+  backend:
+    user: root # dev-only: allows installing debugpy into the image's venv
+    command:
+      - sh
+      - -c
+      - >-
+        pip install --quiet debugpy &&
+        python -m app.db.init &&
+        exec python -m debugpy --listen 0.0.0.0:5679 -m uvicorn app.main:app
+        --host 0.0.0.0 --port 8000 --reload --reload-dir /app/app
+    environment:
+      LOG_LEVEL: DEBUG
+    ports:
+      - "5679:5679"
+    volumes:
+      - ./backend/app:/app/app

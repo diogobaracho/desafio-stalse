@@ -1,0 +1,16 @@
+{
+  "productName": "Acme Help Desk",
+  "companyName": "Acme Comércio Ltda",
+  "tagline": { "pt-BR": "Seu suporte em primeiro lugar", "en": "Support comes first" },
+  "logo": { "src": "/brand/logo.svg", "alt": "Acme Help Desk" },
+  "favicon": "/brand/logo.svg",
+  "colors": { "primary": "#7c2d12", "primaryContrast": "#ffffff", "accent": "#b45309" },
+  "contact": {
+    "email": "atendimento@acme.example",
+    "phone": "+55 21 3000-1234",
+    "website": "https://acme.example",
+    "address": "Rua Exemplo, 42 – Rio de Janeiro, RJ",
+    "hours": { "pt-BR": "Todos os dias, 8h às 20h", "en": "Every day, 8am to 8pm (BRT)" }
+  },
+  "social": [{ "label": "Instagram", "url": "https://instagram.com/acme.example" }]
+}
