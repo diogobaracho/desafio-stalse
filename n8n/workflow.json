@@ -1,0 +1,94 @@
+{
+  "id": "stalseTicketUpdated",
+  "name": "Stalse Mini Inbox – ticket.updated",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "stalse-ticket-updated",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "5b0f3c1e-0001-4c1a-9a51-000000000001",
+      "name": "Ticket updated (webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "stalse-ticket-updated"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validates the backend's `ticket.updated` event and builds a human-readable notification.\n// No credentials and no outbound calls: safe to import anywhere.\nconst body = $input.first().json.body ?? {};\nconst ticket = body.ticket ?? {};\nconst reasons = Array.isArray(body.trigger_reasons) ? body.trigger_reasons : [];\n\nconst valid = body.event === 'ticket.updated' && Number.isInteger(ticket.id) && reasons.length > 0;\nif (!valid) {\n  return [{ json: { ok: false, error: 'Invalid payload: expected event=ticket.updated, ticket.id and trigger_reasons.' } }];\n}\n\nconst labels = { status_closed: 'closed', priority_high: 'escalated to high priority' };\nconst what = reasons.map((r) => labels[r] ?? r).join(' and ');\n\nreturn [{\n  json: {\n    ok: true,\n    summary: `Ticket #${ticket.id} (${ticket.customer_name}) was ${what}: \"${ticket.subject}\"`,\n    channel: reasons.includes('priority_high') ? 'escalations' : 'csat-survey',\n    ticket_id: ticket.id,\n    trigger_reasons: reasons,\n    received_at: new Date().toISOString(),\n  },\n}];"
+      },
+      "id": "5b0f3c1e-0002-4c1a-9a51-000000000002",
+      "name": "Validate & build notification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "6c1d2e3f-0001-4b5a-8c9d-000000000010",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5b0f3c1e-0003-4c1a-9a51-000000000003",
+      "name": "Is valid event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true, summary: $json.summary, channel: $json.channel }) }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "5b0f3c1e-0004-4c1a-9a51-000000000004",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [720, -100]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: false, error: $json.error }) }}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "5b0f3c1e-0005-4c1a-9a51-000000000005",
+      "name": "Respond 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [720, 100]
+    }
+  ],
+  "connections": {
+    "Ticket updated (webhook)": {
+      "main": [[{ "node": "Validate & build notification", "type": "main", "index": 0 }]]
+    },
+    "Validate & build notification": {
+      "main": [[{ "node": "Is valid event?", "type": "main", "index": 0 }]]
+    },
+    "Is valid event?": {
+      "main": [
+        [{ "node": "Respond 200", "type": "main", "index": 0 }],
+        [{ "node": "Respond 400", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1", "saveManualExecutions": true, "saveDataSuccessExecution": "all" },
+  "pinData": {},
+  "tags": []
+}
