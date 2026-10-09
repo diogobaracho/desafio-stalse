@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars (git-ignored). Not secrets, but tenant-specific;
+# in CI the same values come from GitHub environment variables
+# as TF_VAR_* (see docs/guides/ci-cd.md).
+subscription_id        = "00000000-0000-0000-0000-000000000000"
+tenant_id              = "00000000-0000-0000-0000-000000000000"
+location               = "brazilsouth"
+unique_suffix          = "a1b2"
+ci_principal_id        = "00000000-0000-0000-0000-000000000000"
+humans_group_object_id = null
