@@ -1,0 +1,32 @@
+[project]
+name = "stalse-data"
+version = "0.1.0"
+description = "Stalse Mini Inbox - support metrics ETL (pandas)"
+requires-python = ">=3.12,<3.13"
+dependencies = ["pandas>=2.2"]
+
+[dependency-groups]
+dev = ["pytest>=8.3", "pytest-cov>=6.0", "ruff>=0.8", "mypy>=1.13", "pandas-stubs>=2.2"]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF", "PT", "PD"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["etl"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
