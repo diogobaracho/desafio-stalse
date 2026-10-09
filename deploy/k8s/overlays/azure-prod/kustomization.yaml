@@ -1,0 +1,49 @@
+# Azure prod: READ-ONLY, highly available, images pinned by digest (promoted from dev by CD).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: stalse
+
+resources:
+  - ../../base
+  - availability.yaml
+
+components:
+  - ../../components/azure
+
+configMapGenerator:
+  - name: backend-config
+    behavior: merge
+    literals:
+      - ENVIRONMENT=prod
+      - READ_ONLY_MODE=true
+      - CORS_ORIGINS=https://${INGRESS_HOST}
+
+replicas:
+  - { name: backend, count: 2 }
+  - { name: frontend, count: 2 }
+
+images:
+  - { name: stalse-backend, newName: "${ACR_LOGIN_SERVER}/stalse-backend", newTag: latest }
+  - { name: stalse-frontend, newName: "${ACR_LOGIN_SERVER}/stalse-frontend", newTag: latest }
+  - { name: stalse-etl, newName: "${ACR_LOGIN_SERVER}/stalse-etl", newTag: latest }
+
+patches:
+  # Spread replicas across availability zones.
+  - target: { kind: Deployment, name: backend }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/topologySpreadConstraints
+        value:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector: { matchLabels: { app.kubernetes.io/name: backend } }
+  - target: { kind: Deployment, name: frontend }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/topologySpreadConstraints
+        value:
+          - maxSkew: 1
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector: { matchLabels: { app.kubernetes.io/name: frontend } }

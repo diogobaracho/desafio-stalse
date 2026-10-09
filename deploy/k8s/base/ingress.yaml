@@ -1,0 +1,20 @@
+# Plain Ingress API, no controller-specific annotations: the backend itself serves under /api
+# (API_PREFIX), so no path rewriting is needed. Controller: Traefik in every environment (ADR-0008).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stalse
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: stalse.localtest.me
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: { name: backend, port: { name: http } }
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: frontend, port: { name: http } }

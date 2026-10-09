@@ -1,0 +1,36 @@
+# Kustomize base shared by every environment (local kind, azure-dev, azure-prod).
+# Overlays set images, namespace, secrets, replicas and environment flags.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: stalse-mini-inbox
+    includeSelectors: false
+
+resources:
+  - namespace.yaml
+  - backend.yaml
+  - frontend.yaml
+  - etl.yaml
+  - metrics-pvc.yaml
+  - ingress.yaml
+
+configMapGenerator:
+  - name: backend-config
+    literals:
+      - API_PREFIX=/api
+      - METRICS_FILE_PATH=/app/metrics/metrics.json
+      - LOG_FORMAT=json
+      - LOG_LEVEL=INFO
+      - N8N_WEBHOOK_TIMEOUT_SECONDS=3
+      - READ_ONLY_MODE=false
+  # White-label brand file, mounted into the frontend (BRAND_CONFIG_PATH). Swap per overlay.
+  - name: brand
+    files:
+      - brand.json
+
+images:
+  - name: stalse-backend
+  - name: stalse-frontend
+  - name: stalse-etl

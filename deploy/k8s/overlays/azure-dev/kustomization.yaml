@@ -1,0 +1,23 @@
+# Azure dev: writable, 1 replica, images from the dev ACR (tags/digests set by CD).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: stalse
+
+resources:
+  - ../../base
+
+components:
+  - ../../components/azure
+
+configMapGenerator:
+  - name: backend-config
+    behavior: merge
+    literals:
+      - ENVIRONMENT=dev
+      - READ_ONLY_MODE=false
+      - CORS_ORIGINS=https://${INGRESS_HOST}
+
+images:
+  - { name: stalse-backend, newName: "${ACR_LOGIN_SERVER}/stalse-backend", newTag: latest }
+  - { name: stalse-frontend, newName: "${ACR_LOGIN_SERVER}/stalse-frontend", newTag: latest }
+  - { name: stalse-etl, newName: "${ACR_LOGIN_SERVER}/stalse-etl", newTag: latest }

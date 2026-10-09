@@ -1,0 +1,39 @@
+# Local Kubernetes (kind). Build with the n8n workflow loaded from the repo:
+#   kubectl kustomize --load-restrictor LoadRestrictionsNone deploy/k8s/overlays/local | kubectl apply -f -
+# (`make k8s-up` does everything: cluster, Traefik, images, apply, ETL bootstrap.)
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: stalse
+
+resources:
+  - ../../base
+  - backend-pvc.yaml
+  - n8n.yaml
+
+configMapGenerator:
+  - name: backend-config
+    behavior: merge
+    literals:
+      - ENVIRONMENT=local
+      - DATABASE_URL=sqlite:////app/var/stalse.db
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/stalse-ticket-updated
+      - CORS_ORIGINS=http://stalse.localtest.me:8080
+  - name: n8n-workflow
+    files:
+      - workflow.json=../../../../n8n/workflow.json
+
+images:
+  - { name: stalse-backend, newName: stalse-backend, newTag: local }
+  - { name: stalse-frontend, newName: stalse-frontend, newTag: local }
+  - { name: stalse-etl, newName: stalse-etl, newTag: local }
+
+patches:
+  # SQLite needs a persistent disk (single replica only - that is why Azure uses PostgreSQL).
+  - target: { kind: Deployment, name: backend }
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/volumes/0
+        value: { name: var, persistentVolumeClaim: { claimName: backend-data } }
+      - op: replace
+        path: /spec/strategy
+        value: { type: Recreate }

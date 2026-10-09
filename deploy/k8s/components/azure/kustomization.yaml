@@ -1,0 +1,72 @@
+# Shared Azure (AKS) settings for azure-dev and azure-prod.
+#
+# ${VARS} are substituted at deploy time by CI (envsubst) from Terraform outputs stored as
+# GitHub environment variables - see docs/guides/ci-cd.md. No secret values live here.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - secret-provider.yaml
+  - cluster-issuer.yaml
+
+configMapGenerator:
+  - name: backend-config
+    behavior: merge
+    literals:
+      - SECRETS_DIR=/mnt/secrets-store
+
+patches:
+  # Workload identity: the backend's service account federates with an Azure managed identity
+  # that can read Key Vault secrets (DATABASE_URL, N8N_WEBHOOK_URL).
+  - target: { kind: ServiceAccount, name: backend }
+    patch: |-
+      - op: add
+        path: /metadata/annotations
+        value:
+          azure.workload.identity/client-id: "${BACKEND_CLIENT_ID}"
+  - target: { kind: Deployment, name: backend }
+    patch: |-
+      - op: add
+        path: /spec/template/metadata/labels/azure.workload.identity~1use
+        value: "true"
+      - op: replace
+        path: /spec/template/spec/automountServiceAccountToken
+        value: true
+      - op: add
+        path: /spec/template/spec/volumes/-
+        value:
+          name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes: { secretProviderClass: backend-secrets }
+      - op: add
+        path: /spec/template/spec/containers/0/volumeMounts/-
+        value: { name: secrets-store, mountPath: /mnt/secrets-store, readOnly: true }
+      - op: add
+        path: /spec/template/spec/initContainers/0/volumeMounts/-
+        value: { name: secrets-store, mountPath: /mnt/secrets-store, readOnly: true }
+  # Metrics are shared between the ETL CronJob and N backend replicas -> Azure Files (RWX).
+  - target: { kind: PersistentVolumeClaim, name: metrics }
+    patch: |-
+      - op: replace
+        path: /spec/accessModes
+        value: ["ReadWriteMany"]
+      - op: add
+        path: /spec/storageClassName
+        value: azurefile-csi
+  # Public host + TLS (cert-manager, Let's Encrypt).
+  - target: { kind: Ingress, name: stalse }
+    patch: |-
+      - op: add
+        path: /metadata/annotations
+        value:
+          cert-manager.io/cluster-issuer: letsencrypt
+      - op: replace
+        path: /spec/rules/0/host
+        value: "${INGRESS_HOST}"
+      - op: add
+        path: /spec/tls
+        value:
+          - hosts: ["${INGRESS_HOST}"]
+            secretName: stalse-tls
