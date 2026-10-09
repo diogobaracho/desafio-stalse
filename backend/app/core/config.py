@@ -42,7 +42,10 @@ class Settings(BaseSettings):
     @field_validator("n8n_webhook_url", mode="before")
     @classmethod
     def _empty_url_disables_webhook(cls, value: object) -> object:
-        return None if value in ("", None) else value
+        # "" or "none" disables notifications ("none" because Key Vault secrets cannot be empty).
+        if value is None or (isinstance(value, str) and value.strip().lower() in ("", "none")):
+            return None
+        return value
 
     @field_validator("cors_origins", mode="before")
     @classmethod

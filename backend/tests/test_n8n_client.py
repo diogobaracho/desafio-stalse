@@ -69,8 +69,9 @@ def test_http_errors_and_timeouts_raise_notification_error(handler) -> None:
         HttpN8nNotifier("http://n8n.test/webhook/x", 2.0, client).notify(EVENT)
 
 
-def test_empty_webhook_url_selects_null_notifier() -> None:
-    settings = Settings(_env_file=None, n8n_webhook_url="")
+@pytest.mark.parametrize("value", ["", "none", " NONE "])
+def test_empty_or_none_webhook_url_selects_null_notifier(value: str) -> None:
+    settings = Settings(_env_file=None, n8n_webhook_url=value)
     notifier = get_notifier(settings)
 
     assert isinstance(notifier, NullNotifier)
