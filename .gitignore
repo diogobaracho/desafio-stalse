@@ -1,0 +1,66 @@
+# --- OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+.vscode/*
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# --- Secrets / env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+kubeconfig*
+
+# --- Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.egg-info/
+
+# --- Databases (created from migrations + seeds)
+*.db
+*.sqlite
+*.sqlite3
+backend/var/
+
+# --- Node / Next.js
+node_modules/
+.next/
+out/
+frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Data (raw Kaggle exports are not committed; the synthetic sample is)
+data/raw/*
+!data/raw/sample_tickets.csv
+!data/raw/README.md
+
+# --- Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+.terraform.tfstate.lock.info
+
+# --- Assignment brief (kept locally, not part of the deliverable)
+_INITIAL_DRAFT_PROJECT_PROMPT.md
+_Technical_Evaluation_Criteria.md
+terraform.tfvars
+.k8s-render/
