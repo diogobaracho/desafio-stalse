@@ -3,7 +3,6 @@ import { useFormatter, useTranslations } from "next-intl";
 import type { Metrics } from "@/lib/api/types";
 
 import { StateMessage } from "./StateMessage";
-import styles from "./MetricsView.module.css";
 
 function BreakdownTable({
   title,
@@ -22,12 +21,15 @@ function BreakdownTable({
   const format = useFormatter();
   const headingId = `metrics-${title.replace(/\W+/g, "-").toLowerCase()}`;
   return (
-    <section className="card" aria-labelledby={headingId}>
-      <h2 id={headingId}>{title}</h2>
-      <div className={scrollable ? styles.scroll : undefined} tabIndex={scrollable ? 0 : undefined}>
-        <table className={styles.table}>
+    <section className="card border-0 shadow-sm h-100" aria-labelledby={headingId}>
+      <div className="card-body">
+        <h2 id={headingId} className="h4 mb-3">
+          {title}
+        </h2>
+        <div className={scrollable ? "table-responsive" : undefined}>
+          <table className="table table-sm align-middle mb-0">
           <thead>
-            <tr>
+            <tr className="text-muted">
               <th scope="col">{labelHeader}</th>
               <th scope="col">{t("count")}</th>
             </tr>
@@ -37,14 +39,8 @@ function BreakdownTable({
               const share = total > 0 ? count / total : 0;
               return (
                 <tr key={label}>
-                  <th scope="row" style={{ fontWeight: 400 }}>
+                  <th scope="row" className="fw-normal">
                     {label}
-                    {/* Decorative bar; the exact value is in the next cell. */}
-                    <span
-                      className={styles.bar}
-                      style={{ width: `${Math.round(share * 100)}%` }}
-                      aria-hidden="true"
-                    />
                   </th>
                   <td>
                     {format.number(count)}
@@ -57,7 +53,8 @@ function BreakdownTable({
               );
             })}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </section>
   );
@@ -78,8 +75,8 @@ export function MetricsView({ metrics }: { metrics: Metrics }) {
 
   return (
     <>
-      <p className={styles.provenance} data-testid="metrics-provenance">
-        <span aria-hidden="true">ⓘ</span>
+      <p className="alert alert-primary border shadow-sm d-flex gap-2 mb-4" data-testid="metrics-provenance">
+        <span aria-hidden="true">ⓘ</span>{" "}
         {t("provenance", {
           file: metrics.source.file,
           generatedAt: metrics.generated_at
@@ -88,59 +85,84 @@ export function MetricsView({ metrics }: { metrics: Metrics }) {
         })}
       </p>
 
-      <ul className={styles.cards}>
-        <li className="card">
-          <p className={styles.cardLabel}>{t("totalRecords")}</p>
-          <p className={styles.cardValue}>{format.number(total)}</p>
+      <ul className="row g-3 list-unstyled mb-4">
+        <li className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm h-100 bg-light">
+            <div className="card-body">
+              <p className="text-muted mb-1">{t("totalRecords")}</p>
+              <p className="display-6 mb-0">{format.number(total)}</p>
+            </div>
+          </div>
         </li>
-        <li className="card">
-          <p className={styles.cardLabel}>{t("rowsRead")}</p>
-          <p className={styles.cardValue}>{format.number(metrics.source.rows_read)}</p>
+        <li className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm h-100 bg-light">
+            <div className="card-body">
+              <p className="text-muted mb-1">{t("rowsRead")}</p>
+              <p className="display-6 mb-0">{format.number(metrics.source.rows_read)}</p>
+            </div>
+          </div>
         </li>
-        <li className="card">
-          <p className={styles.cardLabel}>{t("invalidDates")}</p>
-          <p className={styles.cardValue}>{format.number(metrics.invalid_dates_dropped)}</p>
+        <li className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm h-100 bg-light">
+            <div className="card-body">
+              <p className="text-muted mb-1">{t("invalidDates")}</p>
+              <p className="display-6 mb-0">{format.number(metrics.invalid_dates_dropped)}</p>
+            </div>
+          </div>
         </li>
         {metrics.date_range.start && metrics.date_range.end && (
-          <li className="card">
-            <p className={styles.cardLabel}>{t("period")}</p>
-            <p className={styles.cardValue} style={{ fontSize: "1.1rem" }}>
+          <li className="col-12 col-sm-6 col-xl-3">
+            <div className="card border-0 shadow-sm h-100 bg-light">
+              <div className="card-body">
+                <p className="text-muted mb-1">{t("period")}</p>
+                <p className="lead mb-0">
               {t("periodValue", {
                 start: formatDay(metrics.date_range.start),
                 end: formatDay(metrics.date_range.end),
               })}
-            </p>
+                </p>
+              </div>
+            </div>
           </li>
         )}
       </ul>
 
-      <div className={styles.panels}>
+      <div className="row g-3">
+        <div className="col-12 col-xl-6">
         <BreakdownTable
           title={t("topCategories")}
           labelHeader={t("label")}
           total={total}
           rows={metrics.top_categories.map((c) => [c.category, c.count])}
         />
+        </div>
+        <div className="col-12 col-xl-6">
         <BreakdownTable
           title={t("byChannel")}
           labelHeader={t("label")}
           total={total}
           rows={Object.entries(metrics.by_channel)}
         />
+        </div>
+        <div className="col-12 col-xl-6">
         <BreakdownTable
           title={t("byPriority")}
           labelHeader={t("label")}
           total={total}
           rows={Object.entries(metrics.by_priority)}
         />
+        </div>
         {metrics.by_status && (
+          <div className="col-12 col-xl-6">
           <BreakdownTable
             title={t("byStatus")}
             labelHeader={t("label")}
             total={total}
             rows={Object.entries(metrics.by_status)}
           />
+          </div>
         )}
+        <div className="col-12">
         <BreakdownTable
           title={t("recordsByDay")}
           labelHeader={t("day")}
@@ -148,6 +170,7 @@ export function MetricsView({ metrics }: { metrics: Metrics }) {
           scrollable
           rows={Object.entries(metrics.records_by_day).map(([day, n]) => [formatDay(day), n])}
         />
+        </div>
       </div>
     </>
   );

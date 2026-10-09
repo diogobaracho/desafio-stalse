@@ -6,13 +6,17 @@ import { StateMessage } from "@/components/StateMessage";
 export default function TicketNotFound() {
   const t = useTranslations();
   return (
-    <div style={{ marginTop: "1.5rem" }}>
-      <h1>{t("ticket.notFoundTitle")}</h1>
+    <div className="mt-4">
+      <h1 className="display-6 mb-3">{t("ticket.notFoundTitle")}</h1>
       <StateMessage
         variant="empty"
         title={t("ticket.notFoundTitle")}
         description={t("ticket.notFoundDescription")}
-        action={<Link href="/tickets">← {t("common.backToList")}</Link>}
+        action={
+          <Link href="/tickets" className="btn btn-outline-primary rounded-pill">
+            ← {t("common.backToList")}
+          </Link>
+        }
       />
     </div>
   );

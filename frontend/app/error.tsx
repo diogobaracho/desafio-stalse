@@ -17,14 +17,14 @@ export default function ErrorBoundary({
     console.error(error);
   }, [error]);
   return (
-    <div className="page-header">
-      <h1>{t("errorPage.title")}</h1>
+    <div className="py-4">
+      <h1 className="display-6 mb-3">{t("errorPage.title")}</h1>
       <StateMessage
         variant="error"
         title={t("errorPage.title")}
         description={t("errorPage.description")}
         action={
-          <button type="button" className="button button-secondary" onClick={reset}>
+          <button type="button" className="btn btn-outline-danger rounded-pill" onClick={reset}>
             {t("common.retry")}
           </button>
         }

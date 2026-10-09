@@ -24,10 +24,18 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <header className="page-header">
-        <h1>{t("dashboard.title")}</h1>
-        <p className="muted">{t("dashboard.subtitle")}</p>
-      </header>
+      <section className="container-fluid px-0 mb-4">
+        <div className="row g-0">
+          <div className="col-12">
+            <div className="card border-0 shadow-sm bg-success-subtle">
+              <div className="card-body p-4 p-lg-5">
+                <h1 className="display-6 mb-2">{t("dashboard.title")}</h1>
+                <p className="lead mb-0">{t("dashboard.subtitle")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       {metrics ? (
         <MetricsView metrics={metrics} />
       ) : (

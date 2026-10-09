@@ -15,14 +15,16 @@ export function LanguageSwitcher() {
   const [pending, startTransition] = useTransition();
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+    <div className="d-flex align-items-center gap-2">
       <label htmlFor={id} className="visually-hidden">
         {t("language")}
       </label>
-      <span aria-hidden="true">🌐</span>
+      <span className="small text-muted" aria-hidden="true">
+        🌐
+      </span>
       <select
         id={id}
-        className="select"
+        className="form-select form-select-sm rounded-pill"
         value={locale}
         disabled={pending}
         onChange={(event) => {

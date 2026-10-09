@@ -4,7 +4,6 @@ import { useFormatter, useTranslations } from "next-intl";
 import type { Ticket } from "@/lib/api/types";
 
 import { PriorityBadge, StatusBadge } from "./Badges";
-import styles from "./TicketTable.module.css";
 
 export function TicketTable({ tickets }: { tickets: Ticket[] }) {
   const t = useTranslations("tickets");
@@ -12,11 +11,12 @@ export function TicketTable({ tickets }: { tickets: Ticket[] }) {
   const format = useFormatter();
 
   return (
-    <div className={styles.wrapper}>
-      <table className={styles.table}>
+    <div className="card shadow-sm border-0">
+      <div className="table-responsive">
+        <table className="table table-hover align-middle mb-0">
         <caption className="visually-hidden">{t("tableCaption")}</caption>
         <thead>
-          <tr>
+          <tr className="text-uppercase small text-muted">
             <th scope="col">{t("columns.createdAt")}</th>
             <th scope="col">{t("columns.customer")}</th>
             <th scope="col">{t("columns.channel")}</th>
@@ -28,7 +28,7 @@ export function TicketTable({ tickets }: { tickets: Ticket[] }) {
         <tbody>
           {tickets.map((ticket) => (
             <tr key={ticket.id}>
-              <td className={styles.nowrap}>
+              <td className="text-nowrap">
                 <time dateTime={ticket.created_at}>
                   {format.dateTime(new Date(ticket.created_at), { dateStyle: "short", timeStyle: "short" })}
                 </time>
@@ -38,7 +38,7 @@ export function TicketTable({ tickets }: { tickets: Ticket[] }) {
               <td>
                 <Link
                   href={`/tickets/${ticket.id}`}
-                  className={styles.subject}
+                  className="fw-semibold link-primary text-decoration-none"
                   aria-label={t("openTicket", { id: ticket.id, subject: ticket.subject })}
                 >
                   {ticket.subject}
@@ -53,7 +53,8 @@ export function TicketTable({ tickets }: { tickets: Ticket[] }) {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }

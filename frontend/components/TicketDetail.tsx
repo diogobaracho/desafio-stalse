@@ -15,7 +15,6 @@ import {
 import { errorMessageKey } from "@/lib/errors";
 
 import { PriorityBadge, StatusBadge } from "./Badges";
-import styles from "./TicketDetail.module.css";
 
 type Feedback = { kind: "success" | "failure" | "info"; text: string } | null;
 
@@ -80,48 +79,57 @@ export function TicketDetail({ initialTicket, readOnly }: Props) {
   const disabled = readOnly || saving;
 
   return (
-    <div className={styles.grid}>
-      <section className="card" aria-labelledby={`${formId}-details`}>
-        <h2 id={`${formId}-details`}>{t("ticket.details")}</h2>
-        <dl className={styles.fields}>
+    <div className="row g-4">
+      <section className="col-12 col-lg-8" aria-labelledby={`${formId}-details`}>
+        <div className="card border-0 shadow-sm h-100">
+          <div className="card-body p-4 p-lg-5">
+            <h2 id={`${formId}-details`} className="h3 mb-4">
+              {t("ticket.details")}
+            </h2>
+            <dl className="row g-3 mb-0">
           <dt>{t("ticket.fields.id")}</dt>
-          <dd>#{ticket.id}</dd>
-          <dt>{t("ticket.fields.customer")}</dt>
-          <dd>{ticket.customer_name}</dd>
-          <dt>{t("ticket.fields.channel")}</dt>
-          <dd>{t(`channel.${ticket.channel}`)}</dd>
-          <dt>{t("ticket.fields.subject")}</dt>
-          <dd>{ticket.subject}</dd>
-          <dt>{t("ticket.fields.status")}</dt>
-          <dd data-testid="current-status">
+          <dd className="col-sm-8">#{ticket.id}</dd>
+          <dt className="col-sm-4 text-muted">{t("ticket.fields.customer")}</dt>
+          <dd className="col-sm-8">{ticket.customer_name}</dd>
+          <dt className="col-sm-4 text-muted">{t("ticket.fields.channel")}</dt>
+          <dd className="col-sm-8">{t(`channel.${ticket.channel}`)}</dd>
+          <dt className="col-sm-4 text-muted">{t("ticket.fields.subject")}</dt>
+          <dd className="col-sm-8">{ticket.subject}</dd>
+          <dt className="col-sm-4 text-muted">{t("ticket.fields.status")}</dt>
+          <dd className="col-sm-8" data-testid="current-status">
             <StatusBadge status={ticket.status} />
           </dd>
-          <dt>{t("ticket.fields.priority")}</dt>
-          <dd data-testid="current-priority">
+          <dt className="col-sm-4 text-muted">{t("ticket.fields.priority")}</dt>
+          <dd className="col-sm-8" data-testid="current-priority">
             <PriorityBadge priority={ticket.priority} />
           </dd>
-          <dt>{t("ticket.fields.createdAt")}</dt>
-          <dd>
+          <dt className="col-sm-4 text-muted">{t("ticket.fields.createdAt")}</dt>
+          <dd className="col-sm-8">
             <time dateTime={ticket.created_at}>{formatDate(ticket.created_at)}</time>
           </dd>
-          <dt>{t("ticket.fields.updatedAt")}</dt>
-          <dd>
+          <dt className="col-sm-4 text-muted">{t("ticket.fields.updatedAt")}</dt>
+          <dd className="col-sm-8">
             <time dateTime={ticket.updated_at}>{formatDate(ticket.updated_at)}</time>
           </dd>
-          <dt>{t("ticket.fields.description")}</dt>
-          <dd className={styles.description}>{ticket.description}</dd>
+          <dt className="col-sm-4 text-muted">{t("ticket.fields.description")}</dt>
+          <dd className="col-sm-8 mb-0">{ticket.description}</dd>
         </dl>
+          </div>
+        </div>
       </section>
 
-      <section className="card" aria-labelledby={`${formId}-triage`}>
-        <h2 id={`${formId}-triage`}>{t("ticket.triage")}</h2>
-        <p className="muted">{t("ticket.triageHint")}</p>
-        <form className={styles.form} onSubmit={handleSubmit} aria-busy={saving}>
-          <div className="field">
-            <label htmlFor={`${formId}-status`}>{t("ticket.fields.status")}</label>
+      <section className="col-12 col-lg-4" aria-labelledby={`${formId}-triage`}>
+        <div className="card border-0 shadow-sm h-100">
+          <div className="card-body p-4">
+            <h2 id={`${formId}-triage`} className="h4 mb-3">
+              {t("ticket.triage")}
+            </h2>
+            <div className="alert alert-info mb-4">{t("ticket.triageHint")}</div>
+            <form className="d-grid gap-3" onSubmit={handleSubmit} aria-busy={saving}>
+              <div className="form-floating">
             <select
               id={`${formId}-status`}
-              className="select"
+              className="form-select"
               value={status}
               disabled={disabled}
               onChange={(event) => setStatus(event.target.value as TicketStatus)}
@@ -132,12 +140,12 @@ export function TicketDetail({ initialTicket, readOnly }: Props) {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="field">
-            <label htmlFor={`${formId}-priority`}>{t("ticket.fields.priority")}</label>
+                <label htmlFor={`${formId}-status`}>{t("ticket.fields.status")}</label>
+              </div>
+              <div className="form-floating">
             <select
               id={`${formId}-priority`}
-              className="select"
+              className="form-select"
               value={priority}
               disabled={disabled}
               onChange={(event) => setPriority(event.target.value as TicketPriority)}
@@ -148,18 +156,27 @@ export function TicketDetail({ initialTicket, readOnly }: Props) {
                 </option>
               ))}
             </select>
-          </div>
-          <button type="submit" className="button" disabled={disabled}>
+                <label htmlFor={`${formId}-priority`}>{t("ticket.fields.priority")}</label>
+              </div>
+              <button type="submit" className="btn btn-success rounded-pill px-4" disabled={disabled}>
             {saving ? t("ticket.saving") : t("ticket.save")}
           </button>
           <p
             role="status"
             aria-live="polite"
-            className={`${styles.feedback} ${feedback ? styles[feedback.kind] : ""}`}
+                className={`small mb-0 ${
+                  feedback?.kind === "success"
+                    ? "text-success"
+                    : feedback?.kind === "failure"
+                      ? "text-danger"
+                      : "text-primary"
+                }`}
           >
             {feedback?.text}
           </p>
         </form>
+          </div>
+        </div>
       </section>
     </div>
   );

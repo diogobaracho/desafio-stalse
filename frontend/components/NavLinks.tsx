@@ -13,10 +13,14 @@ export function NavLinks() {
   const t = useTranslations("nav");
   const pathname = usePathname() ?? "";
   return (
-    <ul>
+    <ul className="nav nav-pills gap-2">
       {LINKS.map(({ href, key }) => (
-        <li key={href}>
-          <Link href={href} aria-current={pathname.startsWith(href) ? "page" : undefined}>
+        <li key={href} className="nav-item">
+          <Link
+            href={href}
+            className={`nav-link rounded-pill px-3 ${pathname.startsWith(href) ? "active" : "text-primary"}`}
+            aria-current={pathname.startsWith(href) ? "page" : undefined}
+          >
             {t(key)}
           </Link>
         </li>

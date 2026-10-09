@@ -1,13 +1,13 @@
 {
-  "productName": "Mini Inbox",
+  "productName": "Bandejinha - Mini Inbox",
   "companyName": "Stalse",
   "tagline": {
     "pt-BR": "Atendimento ao cliente simples e organizado",
     "en": "Simple, organized customer support"
   },
-  "logo": { "src": "/brand/logo.svg", "alt": "Mini Inbox" },
+  "logo": { "src": "/brand/logo.svg", "alt": "Bandejinha - Mini Inbox" },
   "favicon": "/brand/logo.svg",
-  "colors": { "primary": "#1d4ed8", "primaryContrast": "#ffffff", "accent": "#0f766e" },
+  "colors": { "primary": "#0d3b66", "primaryContrast": "#ffffff", "accent": "#16a34a" },
   "contact": {
     "email": "suporte@example.com",
     "phone": "+55 11 4000-0000",

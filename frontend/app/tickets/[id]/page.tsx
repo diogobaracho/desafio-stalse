@@ -49,11 +49,14 @@ export default async function TicketPage({ params }: Props) {
   return (
     <>
       <BackLink label={t("common.backToList")} />
-      <header className="page-header">
-        <h1>
-          {t("ticket.title", { id: ticket.id })} — {ticket.subject}
-        </h1>
-      </header>
+      <section className="card border-0 shadow-sm bg-warning-subtle mt-3 mb-4">
+        <div className="card-body p-4">
+          <h1 className="display-6 mb-2">
+            {t("ticket.title", { id: ticket.id })} — {ticket.subject}
+          </h1>
+          <p className="lead mb-0">{t("ticket.triageHint")}</p>
+        </div>
+      </section>
       <TicketDetail initialTicket={ticket} readOnly={readOnly} />
     </>
   );
@@ -61,8 +64,10 @@ export default async function TicketPage({ params }: Props) {
 
 function BackLink({ label }: { label: string }) {
   return (
-    <p style={{ margin: "1rem 0 0" }}>
-      <Link href="/tickets">← {label}</Link>
+    <p className="mb-0 mt-3">
+      <Link href="/tickets" className="btn btn-outline-primary rounded-pill">
+        ← {label}
+      </Link>
     </p>
   );
 }

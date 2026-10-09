@@ -5,7 +5,7 @@ import { StateMessage } from "@/components/StateMessage";
 export default function Loading() {
   const t = useTranslations("dashboard");
   return (
-    <div style={{ marginTop: "1.5rem" }}>
+    <div className="mt-4">
       <StateMessage variant="loading" title={t("loading")} />
     </div>
   );

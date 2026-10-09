@@ -9,16 +9,12 @@ export function SiteFooter({ brand }: { brand: Brand }) {
   const hours = localized(contact.hours, locale);
 
   return (
-    <footer
-      style={{
-        marginTop: "auto",
-        borderTop: "1px solid var(--color-border)",
-        background: "var(--color-surface)",
-      }}
-    >
-      <div className="container" style={{ padding: "1.25rem 1rem", display: "grid", gap: "0.5rem" }}>
-        <h2 style={{ fontSize: "1rem", margin: 0 }}>{t("contact")}</h2>
-        <address style={{ fontStyle: "normal", display: "flex", flexWrap: "wrap", gap: "0.25rem 1.5rem" }}>
+    <footer className="mt-auto bg-white border-top">
+      <div className="container py-4">
+        <div className="card border-0 shadow-sm">
+          <div className="card-body">
+            <h2 className="h5 mb-3">{t("contact")}</h2>
+            <address className="d-flex flex-wrap gap-2 gap-md-4 mb-3 text-body fst-normal">
           <span>
             {t("email")}: <a href={`mailto:${contact.email}`}>{contact.email}</a>
           </span>
@@ -42,9 +38,9 @@ export function SiteFooter({ brand }: { brand: Brand }) {
               {t("hours")}: {hours}
             </span>
           )}
-        </address>
+            </address>
         {brand.social.length > 0 && (
-          <ul style={{ display: "flex", gap: "1rem", listStyle: "none", margin: 0, padding: 0 }}>
+              <ul className="list-unstyled d-flex flex-wrap gap-3 mb-3">
             {brand.social.map((s) => (
               <li key={s.url}>
                 <a href={s.url} rel="noopener noreferrer" target="_blank">
@@ -54,9 +50,11 @@ export function SiteFooter({ brand }: { brand: Brand }) {
             ))}
           </ul>
         )}
-        <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
+            <p className="text-muted small mb-0">
           {t("rights", { year: new Date().getFullYear(), company: brand.companyName })}
         </p>
+          </div>
+        </div>
       </div>
     </footer>
   );

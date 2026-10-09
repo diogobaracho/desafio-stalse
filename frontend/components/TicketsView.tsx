@@ -42,12 +42,19 @@ export function TicketsView() {
   const retry = useCallback(() => setAttempt((n) => n + 1), []);
 
   return (
-    <section aria-labelledby={`${searchId}-results`}>
-      <div className="field" style={{ maxWidth: 420, marginBottom: "1rem" }}>
-        <label htmlFor={searchId}>{t("tickets.searchLabel")}</label>
+    <section aria-labelledby={`${searchId}-results`} className="pb-4">
+      <div className="card border-0 shadow-sm mb-4">
+        <div className="card-body p-4">
+          <div className="row g-4 align-items-end">
+            <div className="col-12 col-lg-8">
+              <h2 className="h3 mb-2">{t("tickets.title")}</h2>
+              <p className="text-muted mb-0">{t("tickets.searchHint")}</p>
+            </div>
+            <div className="col-12 col-lg-4">
+              <div className="form-floating">
         <input
           id={searchId}
-          className="input"
+          className="form-control"
           type="search"
           value={search}
           placeholder={t("tickets.searchPlaceholder")}
@@ -55,9 +62,14 @@ export function TicketsView() {
           aria-describedby={`${searchId}-hint`}
           autoComplete="off"
         />
-        <small id={`${searchId}-hint`} className="muted">
+                <label htmlFor={searchId}>{t("tickets.searchLabel")}</label>
+              </div>
+        <small id={`${searchId}-hint`} className="form-text">
           {t("tickets.searchHint")}
         </small>
+            </div>
+          </div>
+        </div>
       </div>
 
       <h2 id={`${searchId}-results`} className="visually-hidden">
@@ -72,7 +84,7 @@ export function TicketsView() {
           title={t("tickets.errorTitle")}
           description={t(state.messageKey)}
           action={
-            <button type="button" className="button button-secondary" onClick={retry}>
+            <button type="button" className="btn btn-outline-primary rounded-pill" onClick={retry}>
               {t("common.retry")}
             </button>
           }
@@ -81,7 +93,7 @@ export function TicketsView() {
 
       {state.kind === "ready" && (
         <>
-          <p className="muted" role="status" aria-live="polite">
+          <p className="text-muted small mb-3" role="status" aria-live="polite">
             {t("tickets.resultsCount", { count: state.tickets.length })}
           </p>
           {state.tickets.length === 0 ? (

@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 
-import styles from "./StateMessage.module.css";
-
 type Variant = "loading" | "empty" | "error";
 
 interface Props {
@@ -13,16 +11,18 @@ interface Props {
 
 /** One consistent component for loading / empty / error states (announced to screen readers). */
 export function StateMessage({ variant, title, description, action }: Props) {
+  const alertVariant = variant === "error" ? "danger" : variant === "loading" ? "primary" : "light";
+
   return (
     <div
-      className={`${styles.box} ${styles[variant]}`}
+      className={`alert alert-${alertVariant} border shadow-sm mb-0`}
       role={variant === "error" ? "alert" : "status"}
       aria-busy={variant === "loading" || undefined}
       data-state={variant}
     >
-      <p className={styles.title}>{title}</p>
-      {description && <p className={styles.description}>{description}</p>}
-      {action && <div className={styles.actions}>{action}</div>}
+      <p className="fw-semibold mb-1">{title}</p>
+      {description && <p className="mb-0">{description}</p>}
+      {action && <div className="mt-3">{action}</div>}
     </div>
   );
 }

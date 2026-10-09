@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -26,21 +26,23 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const brand = getBrand();
   const [locale, t, readOnly] = await Promise.all([getLocale(), getTranslations("common"), isReadOnly()]);
 
-  const brandVars = {
-    "--brand-primary": brand.colors.primary,
-    "--brand-primary-contrast": brand.colors.primaryContrast,
-    "--brand-accent": brand.colors.accent,
-  } as CSSProperties;
-
   return (
     <html lang={locale}>
-      <body style={brandVars}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossOrigin="anonymous"
+        />
+      </head>
+      <body className="bg-light text-dark d-flex flex-column min-vh-100">
         <NextIntlClientProvider>
-          <a href="#main" className="skip-link">
+          <a href="#main" className="visually-hidden-focusable m-3 d-inline-block">
             {t("skipToContent")}
           </a>
           <SiteHeader brand={brand} />
-          <main id="main" className="container" style={{ paddingBottom: "2rem" }}>
+          <main id="main" className="container flex-grow-1 py-4 pb-5">
             {readOnly && <ReadOnlyBanner />}
             {children}
           </main>
