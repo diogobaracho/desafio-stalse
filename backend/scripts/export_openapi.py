@@ -15,7 +15,7 @@ TARGET = Path(__file__).resolve().parents[2] / "specs/001-ticket-inbox-api/contr
 
 
 def main() -> int:
-    spec = create_app(Settings(_env_file=None, root_path="")).openapi()
+    spec = create_app(Settings(_env_file=None, api_prefix="")).openapi()
     rendered = json.dumps(spec, indent=2, ensure_ascii=False) + "\n"
     if "--check" in sys.argv:
         if not TARGET.exists() or TARGET.read_text(encoding="utf-8") != rendered:

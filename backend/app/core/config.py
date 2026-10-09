@@ -1,14 +1,17 @@
 """Centralized, validated application configuration.
 
-All environment-specific values are read here (env vars or ``backend/.env``) and validated
-once at startup, so a misconfigured deployment fails fast instead of at first use.
+All environment-specific values are read here and validated once at startup, so a
+misconfigured deployment fails fast instead of at first use. Sources, highest priority first:
+init arguments, environment variables, ``backend/.env``, then files in ``SECRETS_DIR`` (one file
+per setting, e.g. ``database_url`` - the Azure Key Vault CSI mount in AKS).
 """
 
+import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import AnyHttpUrl, Field, field_validator
+from pydantic import AnyHttpUrl, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -33,7 +36,8 @@ class Settings(BaseSettings):
 
     read_only_mode: bool = False
     seed_on_startup: bool = False
-    root_path: str = ""
+    # Path prefix for every route, e.g. "/api" behind the Kubernetes ingress ("" locally).
+    api_prefix: str = Field(default="", pattern=r"^(/[A-Za-z0-9_-]+)*$")
 
     @field_validator("n8n_webhook_url", mode="before")
     @classmethod
@@ -47,6 +51,13 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
 
+    @model_validator(mode="after")
+    def _deployed_envs_require_postgres(self) -> Self:
+        # Guard against silently running a cluster on an ephemeral SQLite file.
+        if self.environment in ("dev", "prod") and self.database_url.startswith("sqlite"):
+            raise ValueError(f"ENVIRONMENT={self.environment} requires a PostgreSQL DATABASE_URL")
+        return self
+
     @field_validator("metrics_file_path", mode="after")
     @classmethod
     def _resolve_relative_to_backend(cls, value: Path) -> Path:
@@ -55,4 +66,7 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
+    secrets_dir = os.getenv("SECRETS_DIR")
+    if secrets_dir and Path(secrets_dir).is_dir():
+        return Settings(_secrets_dir=secrets_dir)
     return Settings()

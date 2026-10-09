@@ -57,3 +57,12 @@ def test_responses_carry_request_id(client: TestClient) -> None:
     response = client.get("/health", headers={"X-Request-ID": "abc123"})
 
     assert response.headers["X-Request-ID"] == "abc123"
+
+
+def test_api_prefix_mounts_every_route_under_it(make_client) -> None:
+    client = make_client(api_prefix="/api")
+
+    assert client.get("/api/health").status_code == 200
+    assert client.get("/api/tickets/1").status_code == 200
+    assert client.get("/api/openapi.json").status_code == 200
+    assert client.get("/health").status_code == 404

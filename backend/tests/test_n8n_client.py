@@ -85,3 +85,26 @@ def test_configured_url_selects_http_notifier_with_timeout() -> None:
 
     assert isinstance(notifier, HttpN8nNotifier)
     assert notifier.timeout == 1.5
+
+
+def test_settings_read_secret_files(tmp_path, monkeypatch) -> None:
+    from app.core.config import get_settings
+
+    monkeypatch.setitem(Settings.model_config, "env_file", None)  # ignore a developer's .env
+    (tmp_path / "database_url").write_text("postgresql+psycopg://u:p@db:5432/stalse")
+    (tmp_path / "n8n_webhook_url").write_text("http://n8n.example/webhook/x")
+    monkeypatch.setenv("SECRETS_DIR", str(tmp_path))
+    monkeypatch.setenv("ENVIRONMENT", "prod")
+    get_settings.cache_clear()
+    try:
+        settings = get_settings()
+    finally:
+        get_settings.cache_clear()
+
+    assert settings.database_url.startswith("postgresql+psycopg://")
+    assert str(settings.n8n_webhook_url) == "http://n8n.example/webhook/x"
+
+
+def test_deployed_environments_refuse_sqlite() -> None:
+    with pytest.raises(ValueError, match="requires a PostgreSQL"):
+        Settings(_env_file=None, environment="prod", database_url="sqlite:///x.db")

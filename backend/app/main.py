@@ -40,8 +40,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         title="Stalse Mini Inbox API",
         version=settings.version,
         description="Customer-support ticket inbox: tickets, triage, ETL metrics.",
-        root_path=settings.root_path,
         lifespan=lifespan,
+        openapi_url=f"{settings.api_prefix}/openapi.json",
+        docs_url=f"{settings.api_prefix}/docs",
+        redoc_url=None,
     )
     app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
@@ -52,9 +54,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         expose_headers=["X-Request-ID"],
     )
     register_exception_handlers(app)
-    app.include_router(health.router)
-    app.include_router(tickets.router)
-    app.include_router(metrics.router)
+    for router in (health.router, tickets.router, metrics.router):
+        app.include_router(router, prefix=settings.api_prefix)
     return app
 
 
